@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ruo Tools — Feature Page</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700&family=Figtree:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:             #ffffff;
+  --surface:        oklch(98.5% 0.004 72);
+  --surface-hover:  oklch(97%   0.006 72);
+  --surface-tint:   oklch(96.5% 0.018 32);
+  --border:         oklch(91%   0.007 72);
+  --border-strong:  oklch(83%   0.010 72);
+  --text-1:         oklch(13%   0.010 72);
+  --text-2:         oklch(42%   0.007 72);
+  --text-3:         oklch(63%   0.005 72);
+  --accent:         oklch(44%   0.130 30);
+  --on:             oklch(54%   0.145 148);
+  --on-bg:          oklch(95%   0.028 148);
+  --off:            oklch(79%   0.008 72);
+  --font-display:   'Bricolage Grotesque', system-ui, sans-serif;
+  --font-ui:        'Figtree', system-ui, sans-serif;
+}
+
+body {
+  font-family: var(--font-ui);
+  background: oklch(88% 0.012 74);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+}
+
+/* ── Preview shell ── */
+.preview-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.preview-label {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: oklch(55% 0.010 74);
+  background: oklch(92% 0.010 74);
+  padding: 5px 12px;
+  border-radius: 100px;
+  border: 1px solid oklch(85% 0.012 74);
+}
+
+/* ── Popup shell ── */
+.popup {
+  width: 380px;
+  height: 582px;
+  background: var(--bg);
+  border-radius: 22px;
+  border: 1px solid oklch(77% 0.016 74);
+  box-shadow:
+    0 0 0 1px oklch(98% 0.004 74 / 0.6) inset,
+    0 32px 80px oklch(25% 0.012 74 / 0.22),
+    0 8px 24px  oklch(25% 0.012 74 / 0.12);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Nav header ── */
+.popup-nav {
+  padding: 14px 18px 13px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.back-btn {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 120ms, color 120ms;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.back-btn:hover {
+  background: var(--surface-hover);
+  color: var(--text-1);
+}
+
+.nav-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-1);
+  flex: 1;
+}
+
+.category-badge {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: oklch(95% 0.020 32);
+  padding: 3px 8px;
+  border-radius: 100px;
+}
+
+/* ── Feature hero ── */
+.feature-hero {
+  padding: 22px 20px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+
+.hero-mark {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: oklch(97.5% 0.018 32);
+  border: 1px solid oklch(91% 0.030 32);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hero-hierarchy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  user-select: none;
+}
+
+.hero-hierarchy span {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.hero-hierarchy .lv1 { font-size: 14px; }
+.hero-hierarchy .lv2 { font-size: 10px; opacity: 0.60; padding-left: 4px; }
+.hero-hierarchy .lv3 { font-size: 8px;  opacity: 0.30; padding-left: 8px; }
+
+.hero-info {
+  flex: 1;
+}
+
+.hero-name {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--text-1);
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+
+.hero-desc {
+  font-size: 12.5px;
+  color: var(--text-2);
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+/* ── Main toggle ── */
+.toggle-section {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.toggle-label-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.toggle-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-1);
+  letter-spacing: -0.01em;
+}
+
+.toggle-sublabel {
+  font-size: 11.5px;
+  color: var(--text-3);
+}
+
+/* Custom toggle switch */
+.toggle-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toggle-track {
+  position: relative;
+  width: 40px;
+  height: 23px;
+  border-radius: 100px;
+  background: var(--off);
+  cursor: pointer;
+  transition: background 200ms ease;
+  flex-shrink: 0;
+}
+
+.toggle-track.is-on {
+  background: var(--on);
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: oklch(99.5% 0 0);
+  box-shadow: 0 1px 4px oklch(20% 0.012 74 / 0.20);
+  transition: transform 200ms cubic-bezier(0.34, 1.30, 0.64, 1);
+}
+
+.toggle-track.is-on .toggle-thumb {
+  transform: translateX(17px);
+}
+
+.toggle-state-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--on);
+  min-width: 24px;
+}
+
+.toggle-track:not(.is-on) + .toggle-state-text {
+  color: var(--text-3);
+}
+
+/* ── Settings section ── */
+.settings-section {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.settings-section-title {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: -4px;
+}
+
+/* Setting field */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.field-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-1);
+  letter-spacing: -0.005em;
+}
+
+.field-desc {
+  font-size: 11.5px;
+  color: var(--text-3);
+  line-height: 1.4;
+  margin-top: -3px;
+}
+
+/* Color swatches */
+.color-swatches {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 100ms, border-color 100ms;
+  position: relative;
+}
+
+.swatch.selected {
+  border-color: var(--text-1);
+  transform: scale(1.1);
+}
+
+.swatch.custom {
+  background: conic-gradient(
+    oklch(55% 0.2 0),
+    oklch(55% 0.2 60),
+    oklch(55% 0.2 120),
+    oklch(55% 0.2 180),
+    oklch(55% 0.2 240),
+    oklch(55% 0.2 300),
+    oklch(55% 0.2 360)
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+}
+
+/* Scope indicator */
+.scope-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.scope-icon {
+  color: var(--text-3);
+  flex-shrink: 0;
+}
+
+.scope-text {
+  font-size: 12px;
+  color: var(--text-2);
+  flex: 1;
+}
+
+.scope-tag {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--accent);
+  background: oklch(95% 0.020 32);
+  padding: 2px 7px;
+  border-radius: 100px;
+}
+
+/* ── Footer ── */
+.popup-footer {
+  padding: 11px 18px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.footer-text {
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+.footer-version {
+  font-size: 11px;
+  color: var(--text-3);
+  font-family: 'Courier New', monospace;
+}
+</style>
+</head>
+<body>
+
+<div class="preview-wrap">
+  <div class="preview-label">Feature Sub-page · Page Outline</div>
+
+  <div class="popup">
+
+    <!-- Nav -->
+    <nav class="popup-nav">
+      <a href="popup-home.html" class="back-btn" title="返回">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 3L4.5 7.5L9 12"/>
+        </svg>
+      </a>
+      <span class="nav-title">Page Outline</span>
+      <span class="category-badge">developer</span>
+    </nav>
+
+    <!-- Hero -->
+    <div class="feature-hero">
+      <div class="hero-mark">
+        <div class="hero-hierarchy">
+          <span class="lv1">H¹</span>
+          <span class="lv2">H²</span>
+          <span class="lv3">H³</span>
+        </div>
+      </div>
+      <div class="hero-info">
+        <h1 class="hero-name">Page Outline</h1>
+        <p class="hero-desc">为页面中的标题元素添加轮廓线，直观显示文档的层级结构。</p>
+      </div>
+    </div>
+
+    <!-- Toggle -->
+    <div class="toggle-section">
+      <div class="toggle-label-group">
+        <span class="toggle-label">启用此功能</span>
+        <span class="toggle-sublabel">在匹配的页面上自动运行</span>
+      </div>
+      <div class="toggle-switch">
+        <div class="toggle-track is-on" id="mainToggle" onclick="this.classList.toggle('is-on'); updateState()">
+          <div class="toggle-thumb"></div>
+        </div>
+        <span class="toggle-state-text" id="stateText">开</span>
+      </div>
+    </div>
+
+    <!-- Settings -->
+    <div class="settings-section">
+      <span class="settings-section-title">配置</span>
+
+      <!-- Color field -->
+      <div class="field">
+        <span class="field-label">轮廓颜色</span>
+        <span class="field-desc">作用于 H1–H6 的 outline 颜色。</span>
+        <div class="color-swatches">
+          <div class="swatch selected" style="background: oklch(44% 0.13 30);" title="Rust"></div>
+          <div class="swatch" style="background: oklch(50% 0.14 148);" title="Sage"></div>
+          <div class="swatch" style="background: oklch(48% 0.16 250);" title="Blue"></div>
+          <div class="swatch" style="background: oklch(46% 0.14 290);" title="Violet"></div>
+          <div class="swatch" style="background: oklch(60% 0.01 74);"  title="Gray"></div>
+          <div class="swatch custom" title="自定义">+</div>
+        </div>
+      </div>
+
+      <!-- Scope field -->
+      <div class="field">
+        <span class="field-label">作用范围</span>
+        <div class="scope-row">
+          <svg class="scope-icon" width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+            <circle cx="8" cy="8" r="6.5"/>
+            <path d="M8 1.5C6 4 5 6 5 8s1 4 3 6.5"/>
+            <path d="M8 1.5C10 4 11 6 11 8s-1 4-3 6.5"/>
+            <line x1="1.5" y1="8" x2="14.5" y2="8"/>
+          </svg>
+          <span class="scope-text">所有网站</span>
+          <span class="scope-tag">全局</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="popup-footer">
+      <span class="footer-text">page-outline</span>
+      <span class="footer-version">v1.0.0</span>
+    </footer>
+
+  </div>
+</div>
+
+<script>
+function updateState() {
+  const track = document.getElementById('mainToggle');
+  const text = document.getElementById('stateText');
+  text.textContent = track.classList.contains('is-on') ? '开' : '关';
+  text.style.color = track.classList.contains('is-on')
+    ? 'oklch(56% 0.140 148)'
+    : 'oklch(64% 0.008 74)';
+}
+</script>
+</body>
+</html>

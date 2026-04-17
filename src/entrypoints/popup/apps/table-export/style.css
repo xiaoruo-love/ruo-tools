@@ -1,0 +1,98 @@
+/* ── Table Export app styles ── */
+
+.te-status {
+  padding: 9px 18px;
+  font-size: 12px;
+  color: var(--text-3);
+  border-bottom: 1px solid var(--border);
+  min-height: 36px;
+}
+
+.te-status[data-tone="error"]   { color: var(--error); }
+.te-status[data-tone="success"] { color: var(--on); }
+
+.te-toolbar {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.te-count { font-size: 12px; font-weight: 600; color: var(--text-2); }
+
+.btn-primary {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--bg);
+  background: var(--text-1);
+  border: none;
+  border-radius: 8px;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: opacity 150ms;
+}
+
+.btn-primary:hover    { opacity: 0.80; }
+.btn-primary:disabled { opacity: 0.35; cursor: default; }
+
+.te-list {
+  overflow-y: auto;
+  max-height: 280px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.te-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 11px 13px;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-ui);
+  transition: border-color 120ms, background 120ms;
+  width: 100%;
+}
+
+.te-item:hover    { background: var(--bg-hover); border-color: oklch(83% 0.010 72); }
+.te-item:disabled { opacity: 0.5; cursor: default; }
+
+.te-item-top { display: flex; align-items: flex-start; gap: 10px; }
+
+.te-item-index {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  color: var(--accent);
+  background: oklch(95.5% 0.018 32);
+  padding: 2px 7px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.te-item-meta { flex: 1; }
+.te-item-title { font-size: 13px; font-weight: 600; color: var(--text-1); margin-bottom: 2px; }
+.te-item-sub   { font-size: 11px; color: var(--text-3); }
+
+.te-item-preview {
+  font-size: 11.5px;
+  color: var(--text-2);
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.te-item-preview.empty { color: var(--text-3); font-style: italic; }
+
+.te-empty { padding: 40px 18px; text-align: center; }
+.te-empty-title { font-size: 14px; font-weight: 600; color: var(--text-2); margin-bottom: 6px; }
+.te-empty-desc  { font-size: 12px; color: var(--text-3); }
