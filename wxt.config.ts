@@ -7,7 +7,7 @@ export default defineConfig({
     name: 'Ruo Tools',
     description: 'A modular browser extension workspace for multiple scripts and utilities.',
     version: '0.1.0',
-    permissions: ['storage', 'tabs', 'scripting'],
+    permissions: ['storage', 'tabs', 'scripting', 'sidePanel'],
     host_permissions: ['<all_urls>'],
     icons: {
       '16': 'icons/icon-16.png',

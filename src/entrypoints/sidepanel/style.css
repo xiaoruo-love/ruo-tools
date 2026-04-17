@@ -1,0 +1,16 @@
+/* ─────────────────────────────────────────────
+   Side Panel overrides — full height, fluid width
+───────────────────────────────────────────────── */
+
+body {
+  width: 100%;
+  min-width: 320px;
+  max-width: none;
+  min-height: 100vh;
+  height: auto;
+}
+
+/* App grid: more columns when panel is wider */
+.app-grid {
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+}
