@@ -398,11 +398,15 @@
       headerCells.map(textFromCell).filter(Boolean).slice(0, 3).join(" / ") ||
       `表格 ${index + 1}`;
 
+    // Use tableToGrid for accurate column count — handles colspan and ensures
+    // we never report 0 when cells exist but cells.length is unreliable.
+    const { maxCols } = tableToGrid(table);
+
     return {
       index,
       title,
       rowCount: rows.length,
-      colCount: rows.reduce((max, row) => Math.max(max, getCellCount(row)), 0),
+      colCount: maxCols,
       preview: previewCells.map(textFromCell).filter(Boolean).slice(0, 3).join(" | ")
     };
   }

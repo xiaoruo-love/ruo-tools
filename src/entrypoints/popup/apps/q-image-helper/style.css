@@ -1,0 +1,263 @@
+/* ─────────────────────────────────────────────────────────────
+   抠图侠 — q-image-helper
+   Scoped under .qi-app to avoid collisions
+───────────────────────────────────────────────────────────── */
+
+.qi-app {
+  --qi-accent:      #0ea5e9;
+  --qi-accent-2:    #38bdf8;
+  --qi-accent-bg:   oklch(97% 0.012 210);
+  --qi-surface:     #ffffff;
+  --qi-border:      #e8f0f4;
+  --qi-text-1:      #0f172a;
+  --qi-text-2:      #475569;
+  --qi-text-3:      #94a3b8;
+  --qi-ok:          #10b981;
+  --qi-error:       #ef4444;
+  --qi-radius:      12px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 14px 20px;
+  background: var(--qi-surface);
+}
+
+/* ── Hero ── */
+.qi-hero {
+  background: var(--qi-accent-bg);
+  border: 1px solid color-mix(in srgb, var(--qi-accent) 20%, transparent);
+  border-radius: var(--qi-radius);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.qi-hero__label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--qi-accent);
+  margin: 0;
+}
+
+.qi-hero__desc {
+  font-size: 12.5px;
+  color: var(--qi-text-2);
+  line-height: 1.55;
+  margin: 4px 0 0;
+}
+
+/* ── Toggle button ── */
+.qi-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 24px;
+  border: none;
+  background: var(--qi-accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--qi-accent) 40%, transparent);
+}
+
+.qi-toggle-btn:hover {
+  background: color-mix(in srgb, var(--qi-accent) 85%, black);
+}
+
+.qi-toggle-btn:active { transform: scale(0.97); }
+
+.qi-toggle-btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.qi-toggle-btn__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.5);
+  flex-shrink: 0;
+}
+
+.qi-toggle-btn.is-active {
+  background: #f43f5e;
+  box-shadow: 0 2px 8px rgba(244, 63, 94, 0.4);
+}
+
+.qi-toggle-btn.is-active .qi-toggle-btn__dot {
+  background: #fff;
+  animation: qiPulse 1s ease-in-out infinite;
+}
+
+@keyframes qiPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.7); }
+}
+
+/* ── Status ── */
+.qi-status {
+  font-size: 12px;
+  color: var(--qi-text-3);
+  padding: 0 2px;
+  min-height: 16px;
+  transition: color 0.2s;
+}
+.qi-status[data-tone="ok"]    { color: var(--qi-ok); }
+.qi-status[data-tone="error"] { color: var(--qi-error); }
+.qi-status[data-tone="info"]  { color: var(--qi-accent); }
+
+/* ── Panel ── */
+.qi-panel {
+  background: #fafcfe;
+  border: 1px solid var(--qi-border);
+  border-radius: var(--qi-radius);
+  overflow: hidden;
+}
+
+.qi-panel__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--qi-border);
+}
+
+.qi-panel__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--qi-text-2);
+  flex: 1;
+}
+
+.qi-panel__count {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--qi-accent);
+  background: color-mix(in srgb, var(--qi-accent) 12%, transparent);
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+
+.qi-refresh-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: 1px solid var(--qi-border);
+  background: var(--qi-surface);
+  color: var(--qi-text-2);
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.qi-refresh-btn:hover {
+  background: var(--qi-accent-bg);
+  color: var(--qi-accent);
+}
+
+/* ── List ── */
+.qi-list {
+  padding: 6px 0;
+}
+
+.qi-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 28px 16px;
+  color: var(--qi-text-3);
+  font-size: 12.5px;
+}
+
+.qi-empty p { margin: 0; }
+
+/* ── Item ── */
+.qi-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  transition: background 0.15s;
+}
+
+.qi-item:hover { background: #f0f7ff; }
+
+.qi-item__icon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--qi-accent-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--qi-accent);
+}
+
+.qi-item__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.qi-item__name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--qi-text-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.qi-item__meta {
+  font-size: 11px;
+  color: var(--qi-text-3);
+}
+
+/* ── Download button ── */
+.qi-download-btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--qi-border);
+  background: var(--qi-surface);
+  color: var(--qi-accent);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.qi-download-btn:hover {
+  background: var(--qi-accent);
+  color: #fff;
+  border-color: var(--qi-accent);
+}
+
+.qi-download-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.qi-download-btn.is-done {
+  color: var(--qi-ok);
+  border-color: color-mix(in srgb, var(--qi-ok) 30%, transparent);
+  background: color-mix(in srgb, var(--qi-ok) 8%, transparent);
+}

@@ -132,7 +132,8 @@ async function bootstrap(): Promise<void> {
     <!-- ── Home ── -->
     <div id="view-home" class="view active">
       <header class="popup-header">
-        <span class="wordmark">ruo<span class="wordmark-dot">·</span></span>
+        <img class="app-logo" src="icons/ruo-tool-logo.png" alt="Ruo Tools" />
+        <span class="wordmark">ruo<span class="wordmark-dot">·</span>tools</span>
         <div class="header-right">
           <span class="active-pill" id="active-pill">0 active</span>
         </div>

@@ -11,6 +11,16 @@ export const featureRegistry: FeatureDefinition[] = [
     matches: [],
     enabledByDefault: true,
   },
+  {
+    id: 'q-image-helper',
+    name: '抠图侠',
+    description: '下载美图秀秀页面的抠图结果',
+    category: 'productivity',
+    version: '1.0.0',
+    type: 'popup-only',
+    matches: [],
+    enabledByDefault: true,
+  },
 ];
 
 export function getFeatureDefinition(featureId: string): FeatureDefinition | undefined {
