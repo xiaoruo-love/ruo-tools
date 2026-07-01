@@ -126,15 +126,6 @@ const wechatPublisherApp: PopupApp = {
   async mount(container: HTMLElement, signal: AbortSignal): Promise<void> {
     container.innerHTML = `
       <div class="wp-app">
-        <section class="wp-hero">
-          <div class="wp-hero__copy">
-            <p class="wp-hero__eyebrow">公众号 JSON 插入器</p>
-            <h2 class="wp-hero__title">当前页一键写标题、正文、正文图</h2>
-            <p class="wp-hero__desc">把符合最新版 schema 的文章 JSON 粘进来，插件会把标题、作者、摘要、正文、正文图写入当前公众号编辑页，并在附件属性阶段自动保存草稿。</p>
-          </div>
-          <div class="wp-hero__badge">Beta</div>
-        </section>
-
         <section class="wp-panel">
           <div class="wp-panel__head">
             <div>

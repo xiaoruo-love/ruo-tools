@@ -148,6 +148,7 @@ description: 根据用户提供的主题、核心信息和写作目标，产出�
 
 - 最外层返回值默认是 **1 个 JSON 对象**
 - 该 JSON 对象必须至少包含：`title_candidates`、`summary`、`blocks`
+- `summary` 必须控制在 **120 个字符以内（含标点）**
 - 如果包含正文图片或封面图，继续补 `cover_image`、`references`
 - 默认不要返回 DOM / HTML 片段
 - 即使用户提到“公众号文章排版”，默认也先返回 JSON schema
@@ -205,11 +206,11 @@ description: 根据用户提供的主题、核心信息和写作目标，产出�
 ```json
 {
   "title_candidates": ["标题1", "标题2", "标题3"],
-  "author_name": "作者名，可选；若编辑页能读到公众号昵称，则优先使用页面昵称",
-  "summary": "三句话以内的摘要",
+  "summary": "120个字符以内（含标点）的摘要",
   "cover_image": {
     "query": "封面图检索词",
     "image_url": "封面网络图片直链",
+    "source_name": "封面图片来源名",
     "source_page": "封面来源页面链接",
     "reason": "为什么适合做封面"
   },
@@ -220,6 +221,7 @@ description: 根据用户提供的主题、核心信息和写作目标，产出�
       "variant": "body_image",
       "query": "用于搜索这张图的关键词",
       "image_url": "正文图片网络直链",
+      "source_name": "正文图片来源名",
       "source_page": "图片来源页",
       "reason": "为什么应该插在这里"
     },
@@ -252,6 +254,7 @@ description: 根据用户提供的主题、核心信息和写作目标，产出�
 如果合适，再补充：
 
 - `摘要版`：3 句话概括全文
+- `summary` 要像公众号摘要，不要超过 120 个字符（含标点）
 - `参考信息`：简要列出使用过的重要来源或线索
 
 ## Blocks 优先原则
@@ -349,6 +352,7 @@ description: 根据用户提供的主题、核心信息和写作目标，产出�
   "variant": "body_image",
   "query": "微信 朋友圈 点赞 评论 界面",
   "image_url": "https://...",
+  "source_name": "微信派",
   "source_page": "https://...",
   "reason": "适合放在解释互动规则的段落后面"
 }
@@ -368,6 +372,7 @@ description: 根据用户提供的主题、核心信息和写作目标，产出�
 - `rows`: 仅 `pseudo_table` 使用
 - `query`: 仅 `image` 常用，记录搜索关键词
 - `image_url`: `image` 必填，正文图片网络直链
+- `source_name`: `image` 强烈建议填写，用于展示给读者看的图片来源名，例如 `微信派`、`Apple App Store`、`新华社`
 - `source_page`: `image` 必填，图片来源页
 - `reason`: `image` 强烈建议填写，说明为什么插在这里
 
@@ -381,15 +386,16 @@ description: 根据用户提供的主题、核心信息和写作目标，产出�
 
 ### `author_name` 规则
 
-- 可以返回一级字段 `author_name`
-- 这是插件或自动化脚本可用的候补作者名
-- 如果编辑页能读到 `window.wx.data.nick_name`，应优先使用页面里的公众号昵称
+- 默认不要返回 `author_name`
+- 只有在用户明确要求、或你确实拿到了一个有必要保留的作者名时，才返回该字段
+- 不要输出空值，例如 `"author_name": ""`
 
 ### 封面规则
 
 - 当前插件策略是：**从正文中的 `image` blocks 里随机选 1 张作为封面**
 - 因此，正文图至少应有 1 张，且质量足够承担封面用途
 - `cover_image` 字段仍然保留，作为封面素材和选图意图的记录
+- `cover_image` 强烈建议补 `source_name`，用于记录封面图的人类可读来源名
 - 但在当前插件实现里，真正写入封面的图片优先来自正文 `image` block 的随机选择
 
 ## 标题与图片规则
@@ -409,6 +415,7 @@ description: 根据用户提供的主题、核心信息和写作目标，产出�
 - `cover_image` 至少包含：
   - `query`
   - `image_url`
+  - `source_name`
   - `source_page`
   - `reason`
 
@@ -418,12 +425,20 @@ description: 根据用户提供的主题、核心信息和写作目标，产出�
 {
   "query": "微信 朋友圈 手机界面 插画",
   "image_url": "https://...",
+  "source_name": "微信派",
   "source_page": "https://...",
   "reason": "画面能直接体现微信社交关系，适合作为封面"
 }
 ```
 
 正文图片现在一律通过 `blocks` 中的 `image` block 表达位置和素材。不要再输出旧的 `image_suggestions` 作为正文图方案。
+
+正文图片规则补充：
+
+- 只要返回 `image` block，就强烈建议同时返回 `source_name` 和 `source_page`
+- `source_name` 用于前端直接展示“图片来源：xxx”
+- `source_page` 用于保留可追溯链接，两者不要互相替代
+- 如果暂时拿不到合适的来源名，也不要编造，宁可退回更上层的真实来源主体
 
 ## 变体字典
 

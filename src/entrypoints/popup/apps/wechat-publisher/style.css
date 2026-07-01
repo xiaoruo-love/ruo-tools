@@ -99,7 +99,7 @@
 
 .wp-textarea {
   width: 100%;
-  min-height: 260px;
+  min-height: 460px;
   resize: vertical;
   border: 1px solid var(--wp-border);
   border-radius: 14px;

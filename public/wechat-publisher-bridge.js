@@ -1,5 +1,6 @@
 (function () {
-  if (window.__ruoruoWechatPublisher__?.isInstalled) return;
+  const BRIDGE_VERSION = '2026-07-01-v3';
+  if (window.__ruoruoWechatPublisher__?.version === BRIDGE_VERSION) return;
 
   const BLOCK_STYLES = {
     paragraph: {
@@ -282,6 +283,10 @@
   function clearContentEditor() {
     const editor = getContentEditor();
     if (!editor) throw new Error('未找到正文编辑器');
+    const dirtyNodes = Array.from(
+      editor.querySelectorAll('[data-ruo-upload-anchor="true"], [data-ruo-image-attribution="true"]'),
+    );
+    dirtyNodes.forEach((node) => node.remove());
     editor.replaceChildren();
     editor.dispatchEvent(new Event('input', { bubbles: true }));
     editor.dispatchEvent(new Event('change', { bubbles: true }));
@@ -298,6 +303,145 @@
     range.collapse(false);
     selection.removeAllRanges();
     selection.addRange(range);
+  }
+
+  function getEditorDirectChild(node, editor) {
+    if (!node || !editor) return null;
+    let current = node;
+    while (current && current.parentElement && current.parentElement !== editor) {
+      current = current.parentElement;
+    }
+    return current?.parentElement === editor ? current : null;
+  }
+
+  function collectTrailingImageNodes(imageBlock, editor) {
+    const nodes = [];
+    let current = imageBlock?.nextSibling || null;
+    while (current) {
+      if (current.nodeType !== Node.ELEMENT_NODE) break;
+      const element = current;
+      const tagName = (element.tagName || '').toLowerCase();
+      const text = String(element.textContent || '').replace(/\s+/g, '');
+      const hasImage = !!element.querySelector?.('img.rich_pages.wxw-img.js_insertlocalimg');
+      const isAttribution = element.getAttribute?.('data-ruo-image-attribution') === 'true';
+      const isAnchor = element.getAttribute?.('data-ruo-upload-anchor') === 'true';
+
+      if (hasImage || isAttribution || isAnchor) break;
+
+      const isEmptyParagraphLike =
+        (tagName === 'p' || tagName === 'section') &&
+        !text &&
+        !!element.querySelector?.('br.ProseMirror-trailingBreak, span[leaf]');
+
+      if (!isEmptyParagraphLike) break;
+      if (element.parentElement !== editor) break;
+      nodes.push(element);
+      current = element.nextSibling;
+    }
+    return nodes;
+  }
+
+  function createUploadAnchor() {
+    const anchor = document.createElement('p');
+    anchor.setAttribute('data-ruo-upload-anchor', 'true');
+    anchor.setAttribute('style', 'margin:0; visibility:visible;');
+    const span = document.createElement('span');
+    span.setAttribute('leaf', '');
+    span.textContent = '';
+    anchor.appendChild(span);
+    return anchor;
+  }
+
+  function removeUploadAnchors() {
+    const editor = getContentEditor();
+    if (!editor) return;
+    const anchors = Array.from(editor.querySelectorAll('[data-ruo-upload-anchor="true"]'));
+    anchors.forEach((anchor) => anchor.remove());
+  }
+
+  function removeImageAttributions() {
+    const editor = getContentEditor();
+    if (!editor) return;
+    const attributions = Array.from(editor.querySelectorAll('[data-ruo-image-attribution="true"]'));
+    attributions.forEach((node) => node.remove());
+  }
+
+  function moveSelectionToNodeEnd(node) {
+    if (!node) return;
+    const selection = window.getSelection();
+    if (!selection) return;
+    const range = document.createRange();
+    range.selectNodeContents(node);
+    range.collapse(false);
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
+
+  function prepareImageInsertionAnchor() {
+    const editor = getContentEditor();
+    if (!editor) throw new Error('未找到正文编辑器');
+    removeUploadAnchors();
+    const anchor = createUploadAnchor();
+    editor.appendChild(anchor);
+    moveSelectionToNodeEnd(anchor);
+    return anchor;
+  }
+
+  function findNewImageElement(editor, previousImages) {
+    const images = Array.from(editor.querySelectorAll('img.rich_pages.wxw-img.js_insertlocalimg'));
+    for (const img of images) {
+      if (!previousImages.has(img)) return img;
+    }
+    return null;
+  }
+
+  function getImageBlockContainer(imageElement, editor) {
+    if (!imageElement || !editor) return null;
+
+    let current = imageElement.parentElement;
+    while (current && current !== editor) {
+      const containsTargetImage = current.querySelector('img.rich_pages.wxw-img.js_insertlocalimg') === imageElement;
+      const text = String(current.textContent || '').replace(/\s+/g, '');
+      if (containsTargetImage && !text && current.tagName === 'SECTION') {
+        return current;
+      }
+      current = current.parentElement;
+    }
+
+    return getEditorDirectChild(imageElement, editor);
+  }
+
+  function relocateImageBlock(editor, imageElement, anchor) {
+    if (!editor || !imageElement || !anchor) return null;
+    const imageBlock = getImageBlockContainer(imageElement, editor);
+    if (!imageBlock) return null;
+    const trailingNodes = collectTrailingImageNodes(imageBlock, editor);
+
+    if (imageBlock.previousSibling !== anchor) {
+      editor.insertBefore(imageBlock, anchor.nextSibling);
+    }
+    let insertAfter = imageBlock;
+    for (const node of trailingNodes) {
+      editor.insertBefore(node, insertAfter.nextSibling);
+      insertAfter = node;
+    }
+    return imageBlock;
+  }
+
+  function insertAttributionAfterImageBlock(editor, imageBlock, block) {
+    if (!editor || !imageBlock) return;
+    const nextNode = imageBlock.nextSibling;
+    if (
+      nextNode &&
+      nextNode.nodeType === Node.ELEMENT_NODE &&
+      nextNode.getAttribute('data-ruo-image-attribution') === 'true'
+    ) {
+      nextNode.remove();
+    }
+
+    const attribution = createImageAttributionNote(block);
+    attribution.setAttribute('data-ruo-image-attribution', 'true');
+    editor.insertBefore(attribution, imageBlock.nextSibling);
   }
 
   function createLeafSpan(text, styleText) {
@@ -427,19 +571,54 @@
     return outer;
   }
 
-  function createImageAttributionNote() {
+  function getImageSourceText(block) {
+    const sourceName = String(block?.source_name || '').trim();
+    if (sourceName) return sourceName;
+
+    const sourcePage = String(block?.source_page || '').trim();
+    if (!sourcePage) return '网络';
+
+    try {
+      const hostname = new URL(sourcePage).hostname.replace(/^www\./i, '');
+      return hostname || sourcePage;
+    } catch (_error) {
+      return sourcePage;
+    }
+  }
+
+  function createImageAttributionNote(block) {
+    const sourceText = getImageSourceText(block);
     const section = document.createElement('section');
-    section.setAttribute('style', 'margin: 18px 0 0 0; visibility: visible;');
+    section.setAttribute('style', 'margin: 4px 0 14px 0; visibility: visible;');
     const p = document.createElement('p');
-    p.setAttribute('style', 'margin: 0; visibility: visible;');
-    p.appendChild(
-      createLeafSpan(
-        '提示：正文图片来源于网络，侵权请联系删除',
-        'visibility: visible; font-size: 12px; line-height: 1.7; color: #9ca3af;',
-      ),
+    p.setAttribute(
+      'style',
+      'margin: 0; text-align: center; visibility: visible; font-size: 12px; line-height: 1.7; color: #9ca3af;',
     );
+    p.textContent = `（图片来源：${sourceText}）`;
     section.appendChild(p);
     return section;
+  }
+
+  function normalizeImageAttributionNodes() {
+    const editor = getContentEditor();
+    if (!editor) return;
+    const nodes = Array.from(editor.querySelectorAll('[data-ruo-image-attribution="true"]'));
+    nodes.forEach((node) => {
+      const text = String(node.textContent || '').trim();
+      if (!text.includes('图片来源：')) return;
+      const section = document.createElement('section');
+      section.setAttribute('style', 'margin: 4px 0 14px 0; visibility: visible;');
+      section.setAttribute('data-ruo-image-attribution', 'true');
+      const p = document.createElement('p');
+      p.setAttribute(
+        'style',
+        'margin: 0; text-align: center; visibility: visible; font-size: 12px; line-height: 1.7; color: #9ca3af;',
+      );
+      p.textContent = text;
+      section.appendChild(p);
+      node.replaceWith(section);
+    });
   }
 
   function createPseudoTable(block) {
@@ -610,9 +789,10 @@
 
   async function uploadImageFile(file) {
     const editor = getContentEditor();
-    moveCursorToContentEnd();
+    if (!editor) throw new Error('未找到正文编辑器');
+    const anchor = prepareImageInsertionAnchor();
     const input = await ensureImageInput();
-    const beforeCount = editor ? editor.querySelectorAll('img').length : 0;
+    const previousImages = new Set(editor.querySelectorAll('img'));
     const dt = new DataTransfer();
     dt.items.add(file);
     input.files = dt.files;
@@ -621,10 +801,14 @@
     const deadline = Date.now() + 30000;
     while (Date.now() < deadline) {
       await sleep(500);
-      const currentCount = editor ? editor.querySelectorAll('img').length : 0;
-      if (currentCount > beforeCount) return true;
+      const newImage = findNewImageElement(editor, previousImages);
+      if (newImage) {
+        const imageBlock = relocateImageBlock(editor, newImage, anchor);
+        return { success: true, imageBlock, anchor };
+      }
     }
-    return false;
+    anchor.remove();
+    return { success: false, imageBlock: null, anchor: null };
   }
 
   async function uploadImageByUrl(url, fallbackName) {
@@ -641,14 +825,15 @@
     const editor = getContentEditor();
     if (!editor) throw new Error('未找到正文编辑器');
     if (replace) clearContentEditor();
+    else {
+      removeUploadAnchors();
+    }
 
     const imageResults = [];
-    let hasBodyImage = false;
     for (let index = 0; index < (blocks || []).length; index += 1) {
       const block = blocks[index];
       if (isImageBlock(block)) {
         if (!includeImages) continue;
-        hasBodyImage = true;
         try {
           const ok = block.data_url
             ? await uploadImageByDataUrl(
@@ -659,11 +844,19 @@
                 block.image_url,
                 block.file_name || `block-image-${index + 1}`,
               );
+          if (ok?.success) {
+            insertAttributionAfterImageBlock(editor, ok.imageBlock, block);
+            if (ok.anchor) ok.anchor.remove();
+            editor.dispatchEvent(new Event('input', { bubbles: true }));
+            editor.dispatchEvent(new Event('change', { bubbles: true }));
+          } else if (ok?.anchor) {
+            ok.anchor.remove();
+          }
           imageResults.push({
             source: 'block',
             blockIndex: index,
             image_url: block.image_url,
-            success: ok,
+            success: !!ok?.success,
           });
         } catch (error) {
           imageResults.push({
@@ -682,11 +875,10 @@
       editor.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
-    if (hasBodyImage) {
-      editor.appendChild(createImageAttributionNote());
-      editor.dispatchEvent(new Event('input', { bubbles: true }));
-      editor.dispatchEvent(new Event('change', { bubbles: true }));
-    }
+    removeUploadAnchors();
+    normalizeImageAttributionNodes();
+    editor.dispatchEvent(new Event('input', { bubbles: true }));
+    editor.dispatchEvent(new Event('change', { bubbles: true }));
 
     return imageResults;
   }
@@ -748,6 +940,7 @@
 
   window.__ruoruoWechatPublisher__ = {
     isInstalled: true,
+    version: BRIDGE_VERSION,
     isWechatEditor,
     insertPayload,
   };
