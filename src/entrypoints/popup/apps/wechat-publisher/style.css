@@ -119,7 +119,7 @@
 
 .wp-actions {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -185,4 +185,128 @@
 
 .wp-status[data-tone='error'] {
   color: var(--wp-error);
+}
+
+.wp-modal.hidden {
+  display: none;
+}
+
+.wp-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.wp-modal__mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.34);
+}
+
+.wp-modal__panel {
+  position: relative;
+  width: calc(100% - 20px);
+  margin: 10px;
+  border-radius: 18px;
+  background: #ffffff;
+  border: 1px solid var(--wp-border);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.16);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.wp-modal__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.wp-modal__eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--wp-text-3);
+  font-weight: 600;
+}
+
+.wp-modal__title {
+  margin-top: 4px;
+  font-size: 16px;
+  line-height: 1.35;
+  color: var(--wp-text-1);
+  font-family: var(--font-display);
+}
+
+.wp-modal__close {
+  border: none;
+  background: #f8fafc;
+  color: var(--wp-text-2);
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.wp-modal__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 240px;
+  overflow: auto;
+}
+
+.wp-title-option {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  border: 1px solid var(--wp-border);
+  border-radius: 14px;
+  padding: 12px;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.wp-title-option:has(.wp-title-option__radio:checked) {
+  border-color: color-mix(in oklab, var(--wp-accent) 55%, white);
+  background: oklch(98% 0.02 150);
+}
+
+.wp-title-option__radio {
+  margin-top: 2px;
+  accent-color: #16a34a;
+}
+
+.wp-title-option__content {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.wp-title-option__index {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--wp-text-3);
+  font-weight: 700;
+}
+
+.wp-title-option__text {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--wp-text-1);
+  font-weight: 600;
+}
+
+.wp-modal__actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
 }

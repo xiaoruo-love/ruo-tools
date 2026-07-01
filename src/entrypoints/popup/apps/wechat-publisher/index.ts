@@ -3,8 +3,12 @@ import './style.css';
 
 interface WechatArticlePayload {
   title_candidates?: string[];
+  author?: string;
+  author_name?: string;
   summary?: string;
-  cover_title?: string;
+  digest?: string;
+  collection?: string;
+  collection_name?: string;
   cover_image?: {
     query?: string;
     image_url?: string;
@@ -48,8 +52,8 @@ async function callBridge<T>(tabId: number, method: string, ...args: unknown[]):
 function parsePayload(raw: string): WechatArticlePayload {
   const parsed = JSON.parse(raw) as WechatArticlePayload;
   if (!parsed || typeof parsed !== 'object') throw new Error('JSON 结构无效');
-  if (!Array.isArray(parsed.title_candidates) || !parsed.title_candidates.length) {
-    throw new Error('缺少 title_candidates[0]');
+  if (!Array.isArray(parsed.title_candidates) || parsed.title_candidates.length !== 3) {
+    throw new Error('title_candidates 必须正好提供 3 个标题');
   }
   if (!Array.isArray(parsed.blocks)) {
     throw new Error('缺少 blocks 数组');
@@ -94,12 +98,12 @@ async function preparePayloadForInsert(payload: WechatArticlePayload): Promise<W
 }
 
 function summarizePayload(payload: WechatArticlePayload): string {
-  const title = payload.title_candidates?.[0] ?? '未命名';
+  const titleCount = Array.isArray(payload.title_candidates) ? payload.title_candidates.length : 0;
   const blocks = Array.isArray(payload.blocks) ? payload.blocks.length : 0;
   const images = Array.isArray(payload.blocks)
     ? payload.blocks.filter((item) => item && item.type === 'image' && item.image_url).length
     : 0;
-  return `标题 1 个 · 正文块 ${blocks} 个 · 正文图片 ${images} 张`;
+  return `标题候选 ${titleCount} 个 · 正文块 ${blocks} 个 · 正文图片 ${images} 张`;
 }
 
 const wechatPublisherApp: PopupApp = {
@@ -126,7 +130,7 @@ const wechatPublisherApp: PopupApp = {
           <div class="wp-hero__copy">
             <p class="wp-hero__eyebrow">公众号 JSON 插入器</p>
             <h2 class="wp-hero__title">当前页一键写标题、正文、正文图</h2>
-            <p class="wp-hero__desc">把符合最新版 schema 的文章 JSON 粘进来，插件会把标题、正文和正文图写入当前公众号编辑页。</p>
+            <p class="wp-hero__desc">把符合最新版 schema 的文章 JSON 粘进来，插件会把标题、作者、摘要、合集、正文、正文图和封面写入当前公众号编辑页。</p>
           </div>
           <div class="wp-hero__badge">Beta</div>
         </section>
@@ -148,13 +152,30 @@ const wechatPublisherApp: PopupApp = {
           ></textarea>
 
           <div class="wp-actions">
-            <button class="wp-secondary-btn" data-action="insert-title" type="button">仅插入标题</button>
-            <button class="wp-secondary-btn" data-action="insert-body" type="button">仅插入正文+正文图</button>
-            <button class="wp-primary-btn" data-action="insert-all" type="button">插入标题+正文+正文图</button>
+            <button class="wp-primary-btn" data-action="parse-json" type="button">解析JSON</button>
+            <button class="wp-secondary-btn" data-action="attach-meta" type="button">添加附件属性</button>
           </div>
 
           <div class="wp-status" data-role="status" role="status" aria-live="polite"></div>
         </section>
+
+        <div class="wp-modal hidden" data-role="title-modal" aria-hidden="true">
+          <div class="wp-modal__mask" data-action="close-modal"></div>
+          <div class="wp-modal__panel" role="dialog" aria-modal="true" aria-labelledby="wp-title-modal-title">
+            <div class="wp-modal__head">
+              <div>
+                <p class="wp-modal__eyebrow">选择标题</p>
+                <h3 class="wp-modal__title" id="wp-title-modal-title">请选择要插入的标题</h3>
+              </div>
+              <button class="wp-modal__close" data-action="close-modal" type="button" aria-label="关闭">×</button>
+            </div>
+            <div class="wp-modal__list" data-role="title-options"></div>
+            <div class="wp-modal__actions">
+              <button class="wp-secondary-btn" data-action="cancel-title" type="button">取消</button>
+              <button class="wp-primary-btn" data-action="confirm-title" type="button">确认并插入</button>
+            </div>
+          </div>
+        </div>
       </div>
     `;
 
@@ -162,10 +183,15 @@ const wechatPublisherApp: PopupApp = {
     const summaryEl = container.querySelector<HTMLElement>('[data-role="summary"]')!;
     const statusEl = container.querySelector<HTMLElement>('[data-role="status"]')!;
     const formatBtn = container.querySelector<HTMLButtonElement>('[data-action="format"]')!;
-    const insertTitleBtn = container.querySelector<HTMLButtonElement>('[data-action="insert-title"]')!;
-    const insertBodyBtn = container.querySelector<HTMLButtonElement>('[data-action="insert-body"]')!;
-    const insertAllBtn = container.querySelector<HTMLButtonElement>('[data-action="insert-all"]')!;
-    const actionButtons = [formatBtn, insertTitleBtn, insertBodyBtn, insertAllBtn];
+    const parseJsonBtn = container.querySelector<HTMLButtonElement>('[data-action="parse-json"]')!;
+    const attachMetaBtn = container.querySelector<HTMLButtonElement>('[data-action="attach-meta"]')!;
+    const modalEl = container.querySelector<HTMLElement>('[data-role="title-modal"]')!;
+    const titleOptionsEl = container.querySelector<HTMLElement>('[data-role="title-options"]')!;
+    const confirmTitleBtn = container.querySelector<HTMLButtonElement>('[data-action="confirm-title"]')!;
+    const closeModalButtons = container.querySelectorAll<HTMLElement>('[data-action="close-modal"], [data-action="cancel-title"]');
+    const actionButtons = [formatBtn, parseJsonBtn, attachMetaBtn, confirmTitleBtn];
+    let selectedTitleIndex = 0;
+    let pendingPayload: WechatArticlePayload | null = null;
 
     function setStatus(message: string, tone: 'info' | 'ok' | 'error' = 'info') {
       if (signal.aborted) return;
@@ -192,6 +218,41 @@ const wechatPublisherApp: PopupApp = {
       });
     }
 
+    function openTitleModal(payload: WechatArticlePayload) {
+      pendingPayload = payload;
+      selectedTitleIndex = 0;
+      titleOptionsEl.innerHTML = '';
+      const titles = Array.isArray(payload.title_candidates) ? payload.title_candidates : [];
+
+      titles.forEach((title, index) => {
+        const label = document.createElement('label');
+        label.className = 'wp-title-option';
+        label.innerHTML = `
+          <input class="wp-title-option__radio" type="radio" name="wp-title-choice" value="${index}" ${index === 0 ? 'checked' : ''}>
+          <span class="wp-title-option__content">
+            <span class="wp-title-option__index">标题 ${index + 1}</span>
+            <span class="wp-title-option__text"></span>
+          </span>
+        `;
+        const textEl = label.querySelector<HTMLElement>('.wp-title-option__text');
+        if (textEl) textEl.textContent = title;
+        const radio = label.querySelector<HTMLInputElement>('input[type="radio"]');
+        radio?.addEventListener('change', () => {
+          if (radio.checked) selectedTitleIndex = index;
+        });
+        titleOptionsEl.appendChild(label);
+      });
+
+      modalEl.classList.remove('hidden');
+      modalEl.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeTitleModal() {
+      modalEl.classList.add('hidden');
+      modalEl.setAttribute('aria-hidden', 'true');
+      pendingPayload = null;
+    }
+
     async function ensureWechatEditor(tabId: number) {
       await injectBridge(tabId);
       const ok = await callBridge<boolean>(tabId, 'isWechatEditor');
@@ -200,16 +261,22 @@ const wechatPublisherApp: PopupApp = {
 
     async function runInsert(options: {
       includeTitle: boolean;
+      includeAuthor: boolean;
+      includeSummary: boolean;
+      includeCollection: boolean;
       includeBody: boolean;
       includeImages: boolean;
+      includeCover: boolean;
       replaceBody: boolean;
-    }) {
-      let payload: WechatArticlePayload;
-      try {
-        payload = parsePayload(textarea.value);
-      } catch (error) {
-        setStatus(`JSON 解析失败：${(error as Error).message}`, 'error');
-        return;
+    }, inputPayload?: WechatArticlePayload) {
+      let payload = inputPayload;
+      if (!payload) {
+        try {
+          payload = parsePayload(textarea.value);
+        } catch (error) {
+          setStatus(`JSON 解析失败：${(error as Error).message}`, 'error');
+          return;
+        }
       }
 
       setBusy(true);
@@ -227,16 +294,39 @@ const wechatPublisherApp: PopupApp = {
         const result = await callBridge<{
           success: boolean;
           title: string | null;
+          authorResult: { filled: boolean; author: string };
+          summaryResult: { filled: boolean; summary: string };
+          collectionResult: { filled: boolean; selected: string; error?: string };
           blockCount: number;
           imageResults: Array<{ success: boolean }>;
+          coverResult: { success: boolean; error?: string } | null;
         }>(tabId, 'insertPayload', payload, options);
 
         const successImages = (result.imageResults || []).filter((item) => item.success).length;
         const totalImages = (result.imageResults || []).length;
-        setStatus(
-          `写入完成：标题 ${options.includeTitle ? '已处理' : '跳过'} · 正文块 ${result.blockCount} 个 · 图片 ${successImages}/${totalImages} 张`,
-          'ok',
-        );
+        const statusParts: string[] = [];
+
+        if (options.includeTitle) statusParts.push('标题已处理');
+        if (options.includeAuthor) {
+          statusParts.push(result.authorResult?.filled ? '作者已填' : '作者跳过');
+        }
+        if (options.includeSummary) {
+          statusParts.push(result.summaryResult?.filled ? '摘要已填' : '摘要跳过');
+        }
+        if (options.includeCollection) {
+          statusParts.push(result.collectionResult?.filled ? `合集已选` : '合集跳过');
+        }
+        if (options.includeBody) {
+          statusParts.push(`正文块 ${result.blockCount} 个`);
+        }
+        if (options.includeImages) {
+          statusParts.push(`图片 ${successImages}/${totalImages} 张`);
+        }
+        if (options.includeCover) {
+          statusParts.push(result.coverResult?.success ? '封面已填' : '封面失败');
+        }
+
+        setStatus(`写入完成：${statusParts.join(' · ')}`, 'ok');
       } catch (error) {
         setStatus(`插入失败：${(error as Error).message}`, 'error');
       } finally {
@@ -265,30 +355,61 @@ const wechatPublisherApp: PopupApp = {
       }
     });
 
-    insertTitleBtn.addEventListener('click', async () => {
+    parseJsonBtn.addEventListener('click', () => {
+      try {
+        const payload = parsePayload(textarea.value);
+        if (!payload.title_candidates?.length) {
+          throw new Error('没有可选标题');
+        }
+        openTitleModal(payload);
+        setStatus('请选择一个标题后确认插入。', 'info');
+      } catch (error) {
+        setStatus(`JSON 解析失败：${(error as Error).message}`, 'error');
+      }
+    });
+
+    attachMetaBtn.addEventListener('click', async () => {
       await runInsert({
-        includeTitle: true,
+        includeTitle: false,
+        includeAuthor: true,
+        includeSummary: true,
+        includeCollection: true,
         includeBody: false,
         includeImages: false,
+        includeCover: true,
         replaceBody: false,
       });
     });
 
-    insertBodyBtn.addEventListener('click', async () => {
-      await runInsert({
-        includeTitle: false,
-        includeBody: true,
-        includeImages: true,
-        replaceBody: true,
-      });
+    confirmTitleBtn.addEventListener('click', async () => {
+      if (!pendingPayload) {
+        setStatus('没有待插入的 JSON，请先点击“解析JSON”。', 'error');
+        return;
+      }
+      const chosenTitle = pendingPayload.title_candidates?.[selectedTitleIndex];
+      const payloadForInsert: WechatArticlePayload = {
+        ...pendingPayload,
+        title_candidates: chosenTitle ? [chosenTitle] : pendingPayload.title_candidates,
+      };
+      closeTitleModal();
+      await runInsert(
+        {
+          includeTitle: true,
+          includeAuthor: false,
+          includeSummary: false,
+          includeCollection: false,
+          includeBody: true,
+          includeImages: true,
+          includeCover: false,
+          replaceBody: true,
+        },
+        payloadForInsert,
+      );
     });
 
-    insertAllBtn.addEventListener('click', async () => {
-      await runInsert({
-        includeTitle: true,
-        includeBody: true,
-        includeImages: true,
-        replaceBody: true,
+    closeModalButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        closeTitleModal();
       });
     });
   },
