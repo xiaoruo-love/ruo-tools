@@ -360,6 +360,21 @@
     return section;
   }
 
+  function createImageAttributionNote() {
+    const section = document.createElement('section');
+    section.setAttribute('style', 'margin: 18px 0 0 0; visibility: visible;');
+    const p = document.createElement('p');
+    p.setAttribute('style', 'margin: 0; visibility: visible;');
+    p.appendChild(
+      createLeafSpan(
+        '提示：正文图片来源于网络，侵权请联系删除',
+        'visibility: visible; font-size: 12px; line-height: 1.7; color: #9ca3af;',
+      ),
+    );
+    section.appendChild(p);
+    return section;
+  }
+
   function createPseudoTable(block) {
     const variant = block.variant || 'compare_grid';
     const style = getVariantStyle('pseudo_table', variant, 'compare_grid');
@@ -557,10 +572,12 @@
     if (replace) clearContentEditor();
 
     const imageResults = [];
+    let hasBodyImage = false;
     for (let index = 0; index < (blocks || []).length; index += 1) {
       const block = blocks[index];
       if (isImageBlock(block)) {
         if (!includeImages) continue;
+        hasBodyImage = true;
         try {
           const ok = block.data_url
             ? await uploadImageByDataUrl(
@@ -590,6 +607,12 @@
       }
 
       editor.appendChild(renderBlock(block));
+      editor.dispatchEvent(new Event('input', { bubbles: true }));
+      editor.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    if (hasBodyImage) {
+      editor.appendChild(createImageAttributionNote());
       editor.dispatchEvent(new Event('input', { bubbles: true }));
       editor.dispatchEvent(new Event('change', { bubbles: true }));
     }
