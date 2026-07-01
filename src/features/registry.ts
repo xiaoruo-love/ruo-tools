@@ -21,6 +21,16 @@ export const featureRegistry: FeatureDefinition[] = [
     matches: [],
     enabledByDefault: true,
   },
+  {
+    id: 'wechat-publisher',
+    name: '发文姬',
+    description: '把结构化公众号 JSON 直接插入当前微信公众号编辑页，支持标题、正文 blocks 和正文图片。',
+    category: 'productivity',
+    version: '1.0.0',
+    type: 'popup-only',
+    matches: [],
+    enabledByDefault: true,
+  },
 ];
 
 export function getFeatureDefinition(featureId: string): FeatureDefinition | undefined {
