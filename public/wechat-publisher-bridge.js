@@ -108,10 +108,6 @@
     return document.querySelector("#js_editor_insertimage input[type='file']");
   }
 
-  function getCoverArea() {
-    return document.querySelector('#js_cover_area');
-  }
-
   function isNodeVisible(node) {
     if (!node) return false;
     const style = window.getComputedStyle(node);
@@ -125,15 +121,78 @@
   }
 
   function getMpNickName() {
-    const wxData = window.wx?.data;
-    if (!wxData || typeof wxData.nick_name !== 'string') return '';
-    return wxData.nick_name.trim();
+    const candidates = [
+      window.wx?.data?.nick_name,
+    ];
+    for (const candidate of candidates) {
+      if (typeof candidate === 'string' && candidate.trim()) return candidate.trim();
+    }
+
+    const domCandidates = [
+      '.weui-desktop-account__info',
+      '.account_info',
+      '.account_meta',
+      '.publish__account',
+      '.weui-desktop-layout__hd',
+      '[class*="account"]',
+      '[class*="nick"]',
+    ];
+    for (const selector of domCandidates) {
+      const nodes = Array.from(document.querySelectorAll(selector));
+      for (const node of nodes) {
+        if (!isNodeVisible(node)) continue;
+        const text = String(node.textContent || '').trim().replace(/\s+/g, ' ');
+        if (text && text.length >= 2 && text.length <= 32 && !text.includes('草稿') && !text.includes('保存')) {
+          return text;
+        }
+      }
+    }
+    return '';
   }
 
   function findFirst(selectors) {
     for (const selector of selectors) {
       const node = document.querySelector(selector);
       if (node) return node;
+    }
+    return null;
+  }
+
+  function findFirstVisible(selectors) {
+    for (const selector of selectors) {
+      const nodes = Array.from(document.querySelectorAll(selector));
+      for (const node of nodes) {
+        if (isNodeVisible(node)) return node;
+      }
+    }
+    return null;
+  }
+
+  function findAuthorInput() {
+    const directMatch = findFirstVisible([
+      '#author',
+      "input.js_author[name='author']",
+      "input[name='author']",
+      "input[placeholder='请输入作者']",
+      "input[placeholder*='作者']",
+      "input[id*='author']",
+      "input[class*='author']",
+    ]);
+    if (directMatch) return directMatch;
+
+    const inputs = Array.from(document.querySelectorAll('input')).filter((node) => isNodeVisible(node));
+    for (const input of inputs) {
+      const attrs = [
+        input.getAttribute('name') || '',
+        input.getAttribute('id') || '',
+        input.getAttribute('class') || '',
+        input.getAttribute('placeholder') || '',
+      ].join(' ');
+      if (attrs.includes('author') || attrs.includes('作者')) return input;
+
+      const field = input.closest('.weui-desktop-form__control-group, .frm_control_group, .setting-group, .form-group');
+      const fieldText = String(field?.textContent || '');
+      if (fieldText.includes('作者')) return input;
     }
     return null;
   }
@@ -154,6 +213,7 @@
 
   function fillInputValue(node, value) {
     if (!node) throw new Error('未找到输入框');
+    node.click();
     node.focus();
     const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
     if (setter) {
@@ -161,13 +221,16 @@
     } else {
       node.value = value || '';
     }
+    node.setAttribute('value', value || '');
     node.dispatchEvent(new Event('input', { bubbles: true }));
     node.dispatchEvent(new Event('change', { bubbles: true }));
+    node.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true, key: 'Enter' }));
     node.blur();
   }
 
   function fillTextareaValue(node, value) {
     if (!node) throw new Error('未找到文本框');
+    node.click();
     node.focus();
     const setter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value')?.set;
     if (setter) {
@@ -182,24 +245,25 @@
 
   function fillAuthor(payload) {
     const authorName = getMpNickName() || payload?.author_name || payload?.author || '';
-    if (!authorName) return { filled: false, author: '' };
+    if (!authorName) return { filled: false, author: '', reason: '未拿到作者名' };
 
-    const authorInput = findFirst([
-      '#author',
-      "input.js_author[name='author']",
-      "input[placeholder='请输入作者']",
-    ]);
-    if (!authorInput) return { filled: false, author: authorName };
+    const authorInput = findAuthorInput();
+    if (!authorInput) return { filled: false, author: authorName, reason: '未找到作者输入框' };
 
     fillInputValue(authorInput, authorName);
-    return { filled: true, author: authorName };
+    const currentValue = String(authorInput.value || authorInput.getAttribute('value') || '').trim();
+    return {
+      filled: currentValue === authorName,
+      author: authorName,
+      reason: currentValue === authorName ? '' : `回填后值为: ${currentValue || '(空)'}`,
+    };
   }
 
   function fillSummary(payload) {
     const summaryText = String(payload?.summary || payload?.digest || '').trim();
     if (!summaryText) return { filled: false, summary: '' };
 
-    const summaryInput = findFirst([
+    const summaryInput = findFirstVisible([
       '#js_description',
       "#js_description_area textarea[name='digest']",
       "textarea[name='digest']",
@@ -300,31 +364,34 @@
     const variant = block.variant || 'compare_grid';
     const style = getVariantStyle('pseudo_table', variant, 'compare_grid');
     const outer = document.createElement('section');
-    outer.setAttribute('style', style.outer);
+    outer.setAttribute(
+      'style',
+      `${style.outer}; display:table; width:100%; table-layout:fixed; border-collapse:collapse;`,
+    );
     const rows = [];
     if (Array.isArray(block.columns) && block.columns.length) rows.push(block.columns);
     if (Array.isArray(block.rows)) rows.push(...block.rows);
     const totalCols = Math.max(...rows.map((row) => row.length), 1);
-    const colWidth = `${(100 / totalCols).toFixed(4)}%`;
 
     rows.forEach((row, rowIndex) => {
       const rowSection = document.createElement('section');
-      rowSection.setAttribute('style', 'font-size:0; visibility:visible;');
+      rowSection.setAttribute('style', 'display:table-row; visibility:visible;');
 
-      row.forEach((cellText) => {
+      for (let colIndex = 0; colIndex < totalCols; colIndex += 1) {
+        const cellText = row[colIndex];
         const cell = document.createElement('section');
         cell.setAttribute(
           'style',
           [
-            'display:inline-block',
+            'display:table-cell',
             'vertical-align:top',
-            `width:${colWidth}`,
             'box-sizing:border-box',
             'padding:10px 8px',
             'border-right:1px solid #d9d9d9',
             'border-bottom:1px solid #d9d9d9',
             `background:${rowIndex === 0 ? style.headerBg : style.bodyBg}`,
             'visibility:visible',
+            'word-break:break-word',
           ].join(';'),
         );
 
@@ -340,7 +407,7 @@
         );
         cell.appendChild(p);
         rowSection.appendChild(cell);
-      });
+      }
 
       outer.appendChild(rowSection);
     });
@@ -413,186 +480,6 @@
     return input;
   }
 
-  async function ensureCoverImageInput() {
-    const coverArea = getCoverArea();
-    if (!coverArea) throw new Error('未找到封面区域');
-
-    let input = coverArea.querySelector("input[type='file']");
-    if (input) return input;
-
-    const triggers = [
-      coverArea.querySelector('.js_cover_btn_area.select-cover__mask'),
-      coverArea.querySelector('.js_chooseCover'),
-      coverArea.querySelector('.js_modifyCover'),
-    ].filter(Boolean);
-
-    for (const trigger of triggers) {
-      try {
-        trigger.click();
-        await sleep(300);
-        input = coverArea.querySelector("input[type='file']");
-        if (input) return input;
-      } catch (_error) {
-        // continue
-      }
-    }
-
-    if (!input) {
-      input = coverArea.querySelector("input[type='file']");
-    }
-    if (!input) throw new Error('未找到封面上传入口');
-    return input;
-  }
-
-  async function getVisibleCoverEntryBySelector(coverArea, selector, text) {
-    const nodes = Array.from(coverArea.querySelectorAll(selector));
-    for (const node of nodes) {
-      if (text && !String(node.textContent || '').includes(text)) continue;
-      if (isNodeVisible(node)) return node;
-    }
-    return null;
-  }
-
-  async function ensureCoverMenuOpened() {
-    const coverArea = getCoverArea();
-    if (!coverArea) throw new Error('未找到封面区域 #js_cover_area');
-
-    const triggers = [
-      coverArea.querySelector('.js_cover_btn_area.select-cover__mask'),
-      coverArea.querySelector('.js_chooseCover'),
-      coverArea.querySelector('.js_modifyCover'),
-    ].filter(Boolean);
-
-    for (const trigger of triggers) {
-      try {
-        if (!isNodeVisible(trigger)) continue;
-        trigger.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }));
-        await sleep(300);
-        trigger.click();
-        await sleep(500);
-      } catch (_error) {
-        // continue
-      }
-
-      const visibleEntry = await getVisibleCoverEntryBySelector(
-        coverArea,
-        '.js_selectCoverFromContent',
-        '从正文选择',
-      );
-      if (visibleEntry) return coverArea;
-    }
-
-    coverArea.querySelectorAll('.js_cover_opr, #js_cover_null, .js_cover_null_pop').forEach((node) => {
-      node.style.display = 'block';
-      node.style.visibility = 'visible';
-      node.style.opacity = '1';
-    });
-    coverArea.querySelectorAll('.js_chooseCoverWrap').forEach((node) => {
-      node.style.display = 'flex';
-      node.style.visibility = 'visible';
-      node.style.opacity = '1';
-    });
-    await sleep(300);
-
-    const visibleEntry = await getVisibleCoverEntryBySelector(
-      coverArea,
-      '.js_selectCoverFromContent',
-      '从正文选择',
-    );
-    if (!visibleEntry) throw new Error('未找到可见的“从正文选择”封面入口');
-    return coverArea;
-  }
-
-  async function waitForDialogByTitle(titleText, timeoutMs = 10000) {
-    const deadline = Date.now() + timeoutMs;
-    while (Date.now() < deadline) {
-      const dialogs = Array.from(document.querySelectorAll('.weui-desktop-dialog'));
-      for (const dialog of dialogs) {
-        const titleNode = dialog.querySelector('.weui-desktop-dialog__title');
-        const title = String(titleNode?.textContent || '').trim();
-        if (title.includes(titleText) && isNodeVisible(dialog)) return dialog;
-      }
-      await sleep(300);
-    }
-    throw new Error(`未找到“${titleText}”弹框`);
-  }
-
-  async function waitForDialogByText(selector, text, timeoutMs = 10000) {
-    const deadline = Date.now() + timeoutMs;
-    while (Date.now() < deadline) {
-      const dialogs = Array.from(document.querySelectorAll('.weui-desktop-dialog'));
-      for (const dialog of dialogs) {
-        const target = Array.from(dialog.querySelectorAll(selector)).find((node) =>
-          String(node.textContent || '').includes(text),
-        );
-        if (target && isNodeVisible(dialog)) return dialog;
-      }
-      await sleep(300);
-    }
-    throw new Error(`未找到包含“${text}”的弹框`);
-  }
-
-  async function selectCollection(payload) {
-    const trigger = findFirst([
-      '#js_article_tags_area .js_article_tags_label .js_article_tags_content',
-      '#js_article_tags_area .js_article_tags_label',
-    ]);
-    if (!trigger) {
-      return { filled: false, selected: '', reason: '未找到合集入口' };
-    }
-
-    trigger.click();
-    let dialog;
-    try {
-      dialog = await waitForDialogByText('.setting-con .setting-desc', '最多添加1个合集', 5000);
-    } catch (_error) {
-      dialog = await waitForDialogByTitle('合集', 5000);
-    }
-
-    const selectInput = dialog.querySelector('.setting-select input.weui-desktop-form__input');
-    if (!selectInput) {
-      return { filled: false, selected: '', reason: '未找到合集选择输入框' };
-    }
-
-    selectInput.click();
-    await sleep(800);
-
-    const options = Array.from(dialog.querySelectorAll('.setting-select .select-opts-ul .select-opt-li')).filter((node) =>
-      isNodeVisible(node),
-    );
-    if (!options.length) {
-      return { filled: false, selected: '', reason: '未找到可选合集项' };
-    }
-
-    const preferredName = String(payload?.collection_name || payload?.collection || '').trim();
-    const selectedOption =
-      (preferredName
-        ? options.find((node) => String(node.textContent || '').trim().includes(preferredName))
-        : null) || options[0];
-
-    const optionText = String(selectedOption.textContent || '').trim();
-    selectedOption.click();
-    await sleep(800);
-
-    const confirmButton = Array.from(dialog.querySelectorAll('.weui-desktop-dialog__ft button.weui-desktop-btn_primary')).find((node) =>
-      String(node.textContent || '').includes('确认'),
-    );
-    if (!confirmButton) {
-      return { filled: false, selected: optionText, reason: '未找到合集确认按钮' };
-    }
-    confirmButton.click();
-
-    const deadline = Date.now() + 5000;
-    while (Date.now() < deadline) {
-      if (!document.body.contains(dialog) || !isNodeVisible(dialog)) {
-        return { filled: true, selected: optionText };
-      }
-      await sleep(200);
-    }
-
-    return { filled: true, selected: optionText };
-  }
-
   async function waitForDraftSaved(timeoutMs = 15000) {
     const deadline = Date.now() + timeoutMs;
     while (Date.now() < deadline) {
@@ -635,75 +522,6 @@
     throw new Error('未找到保存草稿按钮');
   }
 
-  async function confirmCoverCropDialog() {
-    const deadline = Date.now() + 15000;
-    let dialog = null;
-    while (Date.now() < deadline) {
-      const dialogs = Array.from(document.querySelectorAll('.weui-desktop-dialog'));
-      for (const candidate of dialogs) {
-        const hasCropper = candidate.querySelector('.cover-edit-new');
-        const title = String(candidate.querySelector('.weui-desktop-dialog__title')?.textContent || '').trim();
-        if ((hasCropper || title.includes('编辑封面')) && isNodeVisible(candidate)) {
-          dialog = candidate;
-          break;
-        }
-      }
-      if (dialog) break;
-      await sleep(300);
-    }
-
-    if (!dialog) throw new Error('未找到编辑封面弹框');
-    await sleep(1500);
-
-    const confirmButton = Array.from(dialog.querySelectorAll('button.weui-desktop-btn_primary')).find((node) =>
-      String(node.textContent || '').includes('确认'),
-    );
-    if (!confirmButton) throw new Error('未找到“编辑封面”弹框中的确认按钮');
-    confirmButton.click();
-
-    const hiddenDeadline = Date.now() + 15000;
-    while (Date.now() < hiddenDeadline) {
-      if (!document.body.contains(dialog) || !isNodeVisible(dialog)) return true;
-      await sleep(300);
-    }
-    throw new Error('封面裁剪确认后弹框未关闭');
-  }
-
-  async function selectCoverFromContent() {
-    const coverArea = await ensureCoverMenuOpened();
-    const entry = await getVisibleCoverEntryBySelector(
-      coverArea,
-      '.js_selectCoverFromContent',
-      '从正文选择',
-    );
-    if (!entry) throw new Error('未找到“从正文选择”入口');
-    entry.click();
-
-    const dialog = await waitForDialogByTitle('选择图片', 10000);
-    const items = Array.from(dialog.querySelectorAll('.appmsg_content_img_item')).filter((node) =>
-      isNodeVisible(node),
-    );
-    if (!items.length) throw new Error('正文中没有可选的封面图片');
-
-    const selectedIndex = Math.floor(Math.random() * items.length);
-    items[selectedIndex].click();
-    await sleep(1000);
-
-    const nextButton = Array.from(dialog.querySelectorAll('button.weui-desktop-btn_primary')).find((node) =>
-      String(node.textContent || '').includes('下一步'),
-    );
-    if (!nextButton) throw new Error('未找到封面选择弹框“下一步”按钮');
-    nextButton.click();
-
-    await confirmCoverCropDialog();
-    return {
-      success: true,
-      source: 'content-image-picker',
-      selectedIndex,
-      itemCount: items.length,
-    };
-  }
-
   async function uploadImageFile(file) {
     const editor = getContentEditor();
     moveCursorToContentEnd();
@@ -719,28 +537,6 @@
       await sleep(500);
       const currentCount = editor ? editor.querySelectorAll('img').length : 0;
       if (currentCount > beforeCount) return true;
-    }
-    return false;
-  }
-
-  async function uploadCoverFile(file) {
-    const input = await ensureCoverImageInput();
-    const dt = new DataTransfer();
-    dt.items.add(file);
-    input.files = dt.files;
-    input.dispatchEvent(new Event('change', { bubbles: true }));
-
-    const deadline = Date.now() + 30000;
-    while (Date.now() < deadline) {
-      await sleep(500);
-      const coverArea = getCoverArea();
-      if (!coverArea) break;
-      const hasPreview =
-        coverArea.querySelector('.js_modifyCover') ||
-        coverArea.querySelector('img') ||
-        coverArea.querySelector('.cropper-wrap-box') ||
-        coverArea.querySelector('.cover__preview');
-      if (hasPreview) return true;
     }
     return false;
   }
@@ -806,7 +602,6 @@
     const includeTitle = options.includeTitle !== false;
     const includeAuthor = options.includeAuthor !== false;
     const includeSummary = options.includeSummary !== false;
-    const includeCollection = options.includeCollection !== false;
     const includeBody = options.includeBody !== false;
     const includeImages = options.includeImages !== false;
     const includeSaveDraft = options.includeSaveDraft !== false;
@@ -825,19 +620,6 @@
     let summaryResult = { filled: false, summary: '' };
     if (includeSummary) {
       summaryResult = fillSummary(payload);
-    }
-
-    let collectionResult = { filled: false, selected: '' };
-    if (includeCollection) {
-      try {
-        collectionResult = await selectCollection(payload);
-      } catch (error) {
-        collectionResult = {
-          filled: false,
-          selected: '',
-          error: error instanceof Error ? error.message : String(error),
-        };
-      }
     }
 
     let imageResults = [];
@@ -864,7 +646,6 @@
       title: includeTitle ? (payload?.title_candidates?.[0] || '') : null,
       authorResult,
       summaryResult,
-      collectionResult,
       blockCount: Array.isArray(payload?.blocks) ? payload.blocks.length : 0,
       imageResults,
       saveDraftResult,

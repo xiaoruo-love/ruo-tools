@@ -7,8 +7,6 @@ interface WechatArticlePayload {
   author_name?: string;
   summary?: string;
   digest?: string;
-  collection?: string;
-  collection_name?: string;
   cover_image?: {
     query?: string;
     image_url?: string;
@@ -31,6 +29,7 @@ async function injectBridge(tabId: number): Promise<void> {
   await chrome.scripting.executeScript({
     target: { tabId },
     files: ['wechat-publisher-bridge.js'],
+    world: 'MAIN',
   });
 }
 
@@ -43,6 +42,7 @@ async function callBridge<T>(tabId: number, method: string, ...args: unknown[]):
       return bridge[m](...a);
     },
     args: [method, args],
+    world: 'MAIN',
   });
   const [res] = results ?? [];
   if (!res) throw new Error('页面脚本未返回结果');
@@ -130,7 +130,7 @@ const wechatPublisherApp: PopupApp = {
           <div class="wp-hero__copy">
             <p class="wp-hero__eyebrow">公众号 JSON 插入器</p>
             <h2 class="wp-hero__title">当前页一键写标题、正文、正文图</h2>
-            <p class="wp-hero__desc">把符合最新版 schema 的文章 JSON 粘进来，插件会把标题、作者、摘要、合集、正文、正文图和封面写入当前公众号编辑页。</p>
+            <p class="wp-hero__desc">把符合最新版 schema 的文章 JSON 粘进来，插件会把标题、作者、摘要、正文、正文图写入当前公众号编辑页，并在附件属性阶段自动保存草稿。</p>
           </div>
           <div class="wp-hero__badge">Beta</div>
         </section>
@@ -263,10 +263,9 @@ const wechatPublisherApp: PopupApp = {
       includeTitle: boolean;
       includeAuthor: boolean;
       includeSummary: boolean;
-      includeCollection: boolean;
       includeBody: boolean;
       includeImages: boolean;
-      includeCover: boolean;
+      includeSaveDraft: boolean;
       replaceBody: boolean;
     }, inputPayload?: WechatArticlePayload) {
       let payload = inputPayload;
@@ -294,12 +293,11 @@ const wechatPublisherApp: PopupApp = {
         const result = await callBridge<{
           success: boolean;
           title: string | null;
-          authorResult: { filled: boolean; author: string };
+          authorResult: { filled: boolean; author: string; reason?: string };
           summaryResult: { filled: boolean; summary: string };
-          collectionResult: { filled: boolean; selected: string; error?: string };
           blockCount: number;
           imageResults: Array<{ success: boolean }>;
-          coverResult: { success: boolean; error?: string } | null;
+          saveDraftResult: { success: boolean; error?: string } | null;
         }>(tabId, 'insertPayload', payload, options);
 
         const successImages = (result.imageResults || []).filter((item) => item.success).length;
@@ -308,13 +306,14 @@ const wechatPublisherApp: PopupApp = {
 
         if (options.includeTitle) statusParts.push('标题已处理');
         if (options.includeAuthor) {
-          statusParts.push(result.authorResult?.filled ? '作者已填' : '作者跳过');
+          statusParts.push(
+            result.authorResult?.filled
+              ? '作者已填'
+              : `作者跳过${result.authorResult?.reason ? `(${result.authorResult.reason})` : ''}`,
+          );
         }
         if (options.includeSummary) {
           statusParts.push(result.summaryResult?.filled ? '摘要已填' : '摘要跳过');
-        }
-        if (options.includeCollection) {
-          statusParts.push(result.collectionResult?.filled ? `合集已选` : '合集跳过');
         }
         if (options.includeBody) {
           statusParts.push(`正文块 ${result.blockCount} 个`);
@@ -322,8 +321,8 @@ const wechatPublisherApp: PopupApp = {
         if (options.includeImages) {
           statusParts.push(`图片 ${successImages}/${totalImages} 张`);
         }
-        if (options.includeCover) {
-          statusParts.push(result.coverResult?.success ? '封面已填' : '封面失败');
+        if (options.includeSaveDraft) {
+          statusParts.push(result.saveDraftResult?.success ? '草稿已保存' : '草稿保存失败');
         }
 
         setStatus(`写入完成：${statusParts.join(' · ')}`, 'ok');
@@ -373,10 +372,9 @@ const wechatPublisherApp: PopupApp = {
         includeTitle: false,
         includeAuthor: true,
         includeSummary: true,
-        includeCollection: true,
         includeBody: false,
         includeImages: false,
-        includeCover: true,
+        includeSaveDraft: true,
         replaceBody: false,
       });
     });
@@ -397,10 +395,9 @@ const wechatPublisherApp: PopupApp = {
           includeTitle: true,
           includeAuthor: false,
           includeSummary: false,
-          includeCollection: false,
           includeBody: true,
           includeImages: true,
-          includeCover: false,
+          includeSaveDraft: false,
           replaceBody: true,
         },
         payloadForInsert,
