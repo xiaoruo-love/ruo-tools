@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WeChat Blocks Preview</title>
+    <style>
+      :root {
+        --bg: #ffffff;
+        --paper: #ffffff;
+        --ink: #141414;
+        --muted: #737373;
+        --line: #e5e5e5;
+        --panel: #ffffff;
+        --accent: #111111;
+        --accent-soft: #f5f5f5;
+        --code-bg: #f7f7f7;
+        --code-ink: #222222;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        color: var(--ink);
+        background: #ffffff;
+      }
+
+      .shell {
+        width: min(1280px, calc(100vw - 40px));
+        margin: 32px auto 60px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 18px;
+        margin-bottom: 24px;
+      }
+
+      .hero-card,
+      .panel {
+        background: #ffffff;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        box-shadow: none;
+      }
+
+      .hero-card {
+        padding: 28px;
+      }
+
+      .eyebrow {
+        margin: 0 0 8px;
+        font-size: 12px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--accent);
+        font-weight: 700;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(34px, 4vw, 54px);
+        line-height: 1.02;
+        letter-spacing: -0.04em;
+      }
+
+      .hero-desc {
+        margin: 14px 0 0;
+        max-width: 44em;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.8;
+      }
+
+      .hero-list {
+        margin: 20px 0 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 10px;
+      }
+
+      .hero-list li {
+        padding: 12px 14px;
+        border-radius: 10px;
+        background: #fafafa;
+        color: #444444;
+        font-size: 14px;
+      }
+
+      .schema-card {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .schema-card h2 {
+        margin: 0;
+        font-size: 20px;
+      }
+
+      .schema-card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.7;
+      }
+
+      .schema-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .schema-tags span {
+        padding: 7px 10px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .section {
+        margin-top: 20px;
+      }
+
+      .section-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .section-head h2 {
+        margin: 0;
+        font-size: 24px;
+        letter-spacing: -0.03em;
+      }
+
+      .section-head p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .panel {
+        overflow: hidden;
+      }
+
+      .panel-head {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--line);
+        background: #ffffff;
+      }
+
+      .panel-head h3 {
+        margin: 0;
+        font-size: 17px;
+      }
+
+      .panel-head p {
+        margin: 4px 0 0;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .preview {
+        padding: 18px;
+        background: #ffffff;
+      }
+
+      .code {
+        margin: 0;
+        padding: 16px;
+        background: var(--code-bg);
+        color: var(--code-ink);
+        font-size: 12px;
+        line-height: 1.7;
+        overflow: auto;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        border-top: 1px solid var(--line);
+      }
+
+      .article {
+        width: min(760px, 100%);
+        margin: 0 auto;
+        padding: 26px 22px 32px;
+        background: #fff;
+        border: 1px solid #ededed;
+        border-radius: 12px;
+      }
+
+      .cover {
+        width: 100%;
+        border-radius: 16px;
+        display: block;
+        margin-bottom: 18px;
+        aspect-ratio: 16 / 9;
+        object-fit: cover;
+        background: linear-gradient(135deg, #d6ead7, #fbf8f2);
+      }
+
+      .article-title {
+        margin: 0 0 18px;
+        font-size: 30px;
+        line-height: 1.22;
+        letter-spacing: -0.04em;
+      }
+
+      .preview-label {
+        margin: 0 0 10px;
+        color: var(--muted);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+      }
+
+      .img-block {
+        margin: 18px 0;
+      }
+
+      .img-block img {
+        width: 100%;
+        display: block;
+        border-radius: 10px;
+      }
+
+      .img-caption {
+        margin-top: 8px;
+        color: #8b8b8b;
+        font-size: 12px;
+        line-height: 1.6;
+      }
+
+      .footer-tip {
+        margin-top: 18px;
+        color: #9ca3af;
+        font-size: 12px;
+        line-height: 1.7;
+      }
+
+      @media (max-width: 980px) {
+        .hero,
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        .shell {
+          width: min(100vw - 24px, 1280px);
+          margin-top: 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <section class="hero">
+        <div class="hero-card">
+          <p class="eyebrow">Schema Preview</p>
+          <h1>公众号 Blocks 设计稿预览</h1>
+          <p class="hero-desc">
+            这个页面按当前
+            <code>wechat-publisher-bridge.js</code>
+            的真实样式映射制作。它不是新的视觉提案，而是让你快速看到每种
+            <code>block</code>
+            在最终文章中的落点和层次。
+          </p>
+          <ul class="hero-list">
+            <li>段落：`lead` / `body` / `analysis`</li>
+            <li>标题：`section_title` / `section_title_strong`</li>
+            <li>提示：`insight_box` / `warning_soft`</li>
+            <li>引用：`highlight_quote` / `data_point`</li>
+            <li>表格：`compare_grid` / `fact_sheet`</li>
+            <li>图片：正文图 + 底部来源提示</li>
+          </ul>
+        </div>
+
+        <div class="hero-card schema-card">
+          <h2>当前主产物</h2>
+          <p>默认交付物是结构化 JSON，而不是 DOM。这个页面只是辅助你看清每个 schema block 会长成什么样。</p>
+          <div class="schema-tags">
+            <span>title_candidates</span>
+            <span>summary</span>
+            <span>cover_image</span>
+            <span>blocks</span>
+            <span>references</span>
+          </div>
+          <pre class="code">{
+  "title_candidates": ["标题1", "标题2", "标题3"],
+  "summary": "三句话以内摘要",
+  "cover_image": { "image_url": "..." },
+  "blocks": [
+    { "type": "paragraph", "variant": "lead", "text": "..." },
+    { "type": "heading", "variant": "section_title", "text": "..." },
+    { "type": "pseudo_table", "variant": "compare_grid", "columns": [...], "rows": [...] }
+  ],
+  "references": ["来源1", "来源2"]
+}</pre>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <h2>单 Block 预览</h2>
+          <p>左边看实际效果，右边看 schema 示例</p>
+        </div>
+
+        <div class="grid">
+          <article class="panel">
+            <header class="panel-head">
+              <h3>Paragraph</h3>
+              <p>`lead` / `body` / `analysis`</p>
+            </header>
+            <div class="preview">
+              <section style="margin: 0 0 16px 0; visibility: visible;">
+                <p style="margin: 0; visibility: visible;">
+                  <span leaf="" style="visibility: visible; font-size: 16px; line-height: 1.85; color: #202020; font-weight: 500;">6月26日，微信官方首次把朋友圈互动留存规则讲得这么直白：单删不清痕迹，互删才会让对方点赞评论消失。</span>
+                </p>
+              </section>
+              <section style="margin: 0 0 14px 0; visibility: visible;">
+                <p style="margin: 0; visibility: visible;">
+                  <span leaf="" style="visibility: visible; font-size: 15px; line-height: 1.8; color: #2c2c2c;">这不是一个只影响“删好友”的小功能，而是在重新定义微信怎样处理熟人关系的历史记录。</span>
+                </p>
+              </section>
+              <section style="margin: 0 0 14px 0; visibility: visible;">
+                <p style="margin: 0; visibility: visible;">
+                  <span leaf="" style="visibility: visible; font-size: 15px; line-height: 1.85; color: #3a3a3a;">从产品逻辑看，微信并没有把“删除好友”理解成“关系痕迹立即归零”，而是保留了一个更缓慢的社交过渡层。</span>
+                </p>
+              </section>
+            </div>
+            <pre class="code">[
+  { "type": "paragraph", "variant": "lead", "text": "..." },
+  { "type": "paragraph", "variant": "body", "text": "..." },
+  { "type": "paragraph", "variant": "analysis", "text": "..." }
+]</pre>
+          </article>
+
+          <article class="panel">
+            <header class="panel-head">
+              <h3>Heading</h3>
+              <p>`section_title` / `section_title_strong`</p>
+            </header>
+            <div class="preview">
+              <section style="margin: 22px 0 10px 0; visibility: visible;">
+                <p style="margin: 0; visibility: visible;">
+                  <strong style="font-size: 17px; line-height: 1.6; color: #111111; font-weight: 600; visibility: visible;">先看最关键的规则：单删和互删，结果完全不一样</strong>
+                </p>
+              </section>
+              <section style="margin: 26px 0 12px 0; padding-left: 10px; border-left: 4px solid #111111; visibility: visible;">
+                <p style="margin: 0; visibility: visible;">
+                  <strong style="font-size: 18px; line-height: 1.6; color: #111111; font-weight: 700; visibility: visible;">为什么这件事会让很多人破防？</strong>
+                </p>
+              </section>
+            </div>
+            <pre class="code">[
+  { "type": "heading", "variant": "section_title", "text": "..." },
+  { "type": "heading", "variant": "section_title_strong", "text": "..." }
+]</pre>
+          </article>
+
+          <article class="panel">
+            <header class="panel-head">
+              <h3>Note</h3>
+              <p>`insight_box` / `warning_soft`</p>
+            </header>
+            <div class="preview">
+              <section style="margin: 16px 0; padding: 12px 14px; background: #f7f8fa; border-left: 3px solid #222222; visibility: visible;">
+                <p style="margin: 0; visibility: visible;">
+                  <span leaf="" style="visibility: visible; font-size: 14px; line-height: 1.8; color: #333333;">一个关键细节是：单删状态下，你仍然可以回复对方旧评论，但那条回复在重新加回好友前只对你自己可见。</span>
+                </p>
+              </section>
+              <section style="margin: 16px 0; padding: 12px 14px; background: #fff7eb; border-left: 3px solid #d48806; visibility: visible;">
+                <p style="margin: 0; visibility: visible;">
+                  <span leaf="" style="visibility: visible; font-size: 14px; line-height: 1.8; color: #5c3b00;">如果你真的在意朋友圈可见范围，新增好友后应尽快调整分组，否则旧设置不会自动套用到新关系上。</span>
+                </p>
+              </section>
+            </div>
+            <pre class="code">[
+  { "type": "note", "variant": "insight_box", "text": "..." },
+  { "type": "note", "variant": "warning_soft", "text": "..." }
+]</pre>
+          </article>
+
+          <article class="panel">
+            <header class="panel-head">
+              <h3>Quote</h3>
+              <p>`highlight_quote` / `data_point`</p>
+            </header>
+            <div class="preview">
+              <section style="margin: 18px 0; padding: 12px 14px; background: #fafafa; border-left: 3px solid #bdbdbd; visibility: visible;">
+                <p style="margin: 0; visibility: visible;">
+                  <span leaf="" style="visibility: visible; font-size: 15px; line-height: 1.85; color: #444444; font-style: italic;">关系可以断，痕迹不一定立刻清。微信这次真正暴露的，是它处理熟人社交的底层态度。</span>
+                </p>
+              </section>
+              <section style="margin: 18px 0; padding: 14px 16px; background: #f5f7ff; border: 1px solid #d6defa; visibility: visible;">
+                <p style="margin: 0; visibility: visible;">
+                  <span leaf="" style="visibility: visible; font-size: 15px; line-height: 1.85; color: #223a70; font-weight: 600;">微信及 WeChat 合并月活跃账户已达 14.32 亿；每天约 7.8 亿用户进入朋友圈。</span>
+                </p>
+              </section>
+            </div>
+            <pre class="code">[
+  { "type": "quote", "variant": "highlight_quote", "text": "..." },
+  { "type": "quote", "variant": "data_point", "text": "..." }
+]</pre>
+          </article>
+
+          <article class="panel">
+            <header class="panel-head">
+              <h3>Pseudo Table</h3>
+              <p>`compare_grid`</p>
+            </header>
+            <div class="preview">
+              <section style="margin: 16px 0; border-top: 1px solid #d9d9d9; border-left: 1px solid #d9d9d9; visibility: visible; display:table; width:100%; table-layout:fixed; border-collapse:collapse;">
+                <section style="display:table-row; visibility:visible;">
+                  <section style="display:table-cell; vertical-align:top; box-sizing:border-box; padding:10px 8px; border-right:1px solid #d9d9d9; border-bottom:1px solid #d9d9d9; background:#f7f7f7; visibility:visible; word-break:break-word;"><p style="margin:0; visibility:visible;"><span leaf="" style="visibility: visible; color:#333333; font-size:14px; line-height:1.7; font-weight:600;">场景</span></p></section>
+                  <section style="display:table-cell; vertical-align:top; box-sizing:border-box; padding:10px 8px; border-right:1px solid #d9d9d9; border-bottom:1px solid #d9d9d9; background:#f7f7f7; visibility:visible; word-break:break-word;"><p style="margin:0; visibility:visible;"><span leaf="" style="visibility: visible; color:#333333; font-size:14px; line-height:1.7; font-weight:600;">互动会不会消失</span></p></section>
+                  <section style="display:table-cell; vertical-align:top; box-sizing:border-box; padding:10px 8px; border-right:1px solid #d9d9d9; border-bottom:1px solid #d9d9d9; background:#f7f7f7; visibility:visible; word-break:break-word;"><p style="margin:0; visibility:visible;"><span leaf="" style="visibility: visible; color:#333333; font-size:14px; line-height:1.7; font-weight:600;">补充说明</span></p></section>
+                </section>
+                <section style="display:table-row; visibility:visible;">
+                  <section style="display:table-cell; vertical-align:top; box-sizing:border-box; padding:10px 8px; border-right:1px solid #d9d9d9; border-bottom:1px solid #d9d9d9; background:#ffffff; visibility:visible; word-break:break-word;"><p style="margin:0; visibility:visible;"><span leaf="" style="visibility: visible; color:#333333; font-size:14px; line-height:1.7;">单删</span></p></section>
+                  <section style="display:table-cell; vertical-align:top; box-sizing:border-box; padding:10px 8px; border-right:1px solid #d9d9d9; border-bottom:1px solid #d9d9d9; background:#ffffff; visibility:visible; word-break:break-word;"><p style="margin:0; visibility:visible;"><span leaf="" style="visibility: visible; color:#333333; font-size:14px; line-height:1.7;">不会</span></p></section>
+                  <section style="display:table-cell; vertical-align:top; box-sizing:border-box; padding:10px 8px; border-right:1px solid #d9d9d9; border-bottom:1px solid #d9d9d9; background:#ffffff; visibility:visible; word-break:break-word;"><p style="margin:0; visibility:visible;"><span leaf="" style="visibility: visible; color:#333333; font-size:14px; line-height:1.7;">历史点赞评论通常保留，对方未必察觉</span></p></section>
+                </section>
+                <section style="display:table-row; visibility:visible;">
+                  <section style="display:table-cell; vertical-align:top; box-sizing:border-box; padding:10px 8px; border-right:1px solid #d9d9d9; border-bottom:1px solid #d9d9d9; background:#ffffff; visibility:visible; word-break:break-word;"><p style="margin:0; visibility:visible;"><span leaf="" style="visibility: visible; color:#333333; font-size:14px; line-height:1.7;">互删</span></p></section>
+                  <section style="display:table-cell; vertical-align:top; box-sizing:border-box; padding:10px 8px; border-right:1px solid #d9d9d9; border-bottom:1px solid #d9d9d9; background:#ffffff; visibility:visible; word-break:break-word;"><p style="margin:0; visibility:visible;"><span leaf="" style="visibility: visible; color:#333333; font-size:14px; line-height:1.7;">会</span></p></section>
+                  <section style="display:table-cell; vertical-align:top; box-sizing:border-box; padding:10px 8px; border-right:1px solid #d9d9d9; border-bottom:1px solid #d9d9d9; background:#ffffff; visibility:visible; word-break:break-word;"><p style="margin:0; visibility:visible;"><span leaf="" style="visibility: visible; color:#333333; font-size:14px; line-height:1.7;">对方痕迹消失，重新加回后可能恢复</span></p></section>
+                </section>
+              </section>
+            </div>
+            <pre class="code">{
+  "type": "pseudo_table",
+  "variant": "compare_grid",
+  "columns": ["场景", "互动会不会消失", "补充说明"],
+  "rows": [
+    ["单删", "不会", "历史点赞评论通常保留，对方未必察觉"],
+    ["互删", "会", "对方痕迹消失，重新加回后可能恢复"]
+  ]
+}</pre>
+          </article>
+
+          <article class="panel">
+            <header class="panel-head">
+              <h3>Pseudo Table</h3>
+              <p>`fact_sheet`</p>
+            </header>
+            <div class="preview">
+              <section style="margin: 16px 0; border-top: 1px solid #e5e7eb; border-left: 1px solid #e5e7eb; visibility: visible; display:table; width:100%; table-layout:fixed; border-collapse:collapse;">
+                <section style="display:table-row; visibility:visible;">
+                  <section style="display:table-cell; vertical-align:top; box-sizing:border-box; padding:10px 8px; border-right:1px solid #d9d9d9; border-bottom:1px solid #d9d9d9; background:#f3f4f6; visibility:visible; word-break:break-word;"><p style="margin:0; visibility:visible;"><span leaf="" style="visibility: visible; color:#333333; font-size:14px; line-height:1.7; font-weight:600;">指标</span></p></section>
+                  <section style="display:table-cell; vertical-align:top; box-sizing:border-box; padding:10px 8px; border-right:1px solid #d9d9d9; border-bottom:1px solid #d9d9d9; background:#f3f4f6; visibility:visible; word-break:break-word;"><p style="margin:0; visibility:visible;"><span leaf="" style="visibility: visible; color:#333333; font-size:14px; line-height:1.7; font-weight:600;">数据</span></p></section>
+                </section>
+                <section style="display:table-row; visibility:visible;">
+                  <section style="display:table-cell; vertical-align:top; box-sizing:border-box; padding:10px 8px; border-right:1px solid #d9d9d9; border-bottom:1px solid #d9d9d9; background:#fcfcfd; visibility:visible; word-break:break-word;"><p style="margin:0; visibility:visible;"><span leaf="" style="visibility: visible; color:#333333; font-size:14px; line-height:1.7;">月活</span></p></section>
+                  <section style="display:table-cell; vertical-align:top; box-sizing:border-box; padding:10px 8px; border-right:1px solid #d9d9d9; border-bottom:1px solid #d9d9d9; background:#fcfcfd; visibility:visible; word-break:break-word;"><p style="margin:0; visibility:visible;"><span leaf="" style="visibility: visible; color:#333333; font-size:14px; line-height:1.7;">14.32 亿</span></p></section>
+                </section>
+                <section style="display:table-row; visibility:visible;">
+                  <section style="display:table-cell; vertical-align:top; box-sizing:border-box; padding:10px 8px; border-right:1px solid #d9d9d9; border-bottom:1px solid #d9d9d9; background:#fcfcfd; visibility:visible; word-break:break-word;"><p style="margin:0; visibility:visible;"><span leaf="" style="visibility: visible; color:#333333; font-size:14px; line-height:1.7;">朋友圈日访问</span></p></section>
+                  <section style="display:table-cell; vertical-align:top; box-sizing:border-box; padding:10px 8px; border-right:1px solid #d9d9d9; border-bottom:1px solid #d9d9d9; background:#fcfcfd; visibility:visible; word-break:break-word;"><p style="margin:0; visibility:visible;"><span leaf="" style="visibility: visible; color:#333333; font-size:14px; line-height:1.7;">约 7.8 亿</span></p></section>
+                </section>
+              </section>
+            </div>
+            <pre class="code">{
+  "type": "pseudo_table",
+  "variant": "fact_sheet",
+  "columns": ["指标", "数据"],
+  "rows": [
+    ["月活", "14.32 亿"],
+    ["朋友圈日访问", "约 7.8 亿"]
+  ]
+}</pre>
+          </article>
+
+          <article class="panel">
+            <header class="panel-head">
+              <h3>Image</h3>
+              <p>`body_image` + 底部图片来源提示</p>
+            </header>
+            <div class="preview">
+              <div class="img-block">
+                <img
+                  alt="WeChat body image preview"
+                  src="https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=1200&q=80"
+                />
+                <div class="img-caption">图片 block 会按所在位置插入正文，图片下方不默认加 caption。</div>
+              </div>
+              <div class="footer-tip">提示：正文图片来源于网络，侵权请联系删除</div>
+            </div>
+            <pre class="code">{
+  "type": "image",
+  "variant": "body_image",
+  "query": "微信 社交 手机界面",
+  "image_url": "https://...",
+  "source_page": "https://...",
+  "reason": "用于承接上一段规则说明"
+}</pre>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <h2>整稿预览</h2>
+          <p>组合展示一篇完整公众号文章会长什么样</p>
+        </div>
+
+        <article class="panel">
+          <div class="preview">
+            <div class="article">
+              <p class="preview-label">完整文章效果</p>
+              <img
+                class="cover"
+                alt="article cover"
+                src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=1600&q=80"
+              />
+              <h3 class="article-title">微信把“单删互删”讲透了，但真正刺痛人的不是规则</h3>
+
+              <section style="margin: 0 0 16px 0; visibility: visible;">
+                <p style="margin: 0; visibility: visible;">
+                  <span leaf="" style="visibility: visible; font-size: 16px; line-height: 1.85; color: #202020; font-weight: 500;">6月26日，微信官方账号“微信派”发布《几个关于朋友圈的冷知识》，终于把很多人争论已久的两个问题讲明白了。</span>
+                </p>
+              </section>
+
+              <section style="margin: 0 0 14px 0; visibility: visible;">
+                <p style="margin: 0; visibility: visible;">
+                  <span leaf="" style="visibility: visible; font-size: 15px; line-height: 1.8; color: #2c2c2c;">如果只看结论很简单：单删，互动通常还在；互删，对方痕迹才会消失。但真正值得讨论的，是微信为什么始终把“关系结束”处理得比人的情绪慢半拍。</span>
+                </p>
+              </section>
+
+              <section style="margin: 22px 0 10px 0; visibility: visible;">
+                <p style="margin: 0; visibility: visible;">
+                  <strong style="font-size: 17px; line-height: 1.6; color: #111111; font-weight: 600; visibility: visible;">先看最关键的规则：单删和互删，结果完全不一样</strong>
+                </p>
+              </section>
+
+              <section style="margin: 16px 0; border-top: 1px solid #d9d9d9; border-left: 1px solid #d9d9d9; visibility: visible; display:table; width:100%; table-layout:fixed; border-collapse:collapse;">
+                <section style="display:table-row; visibility:visible;">
+                  <section style="display:table-cell; vertical-align:top; box-sizing:border-box; padding:10px 8px; border-right:1px solid #d9d9d9; border-bottom:1px solid #d9d9d9; background:#f7f7f7; visibility:visible; word-break:break-word;"><p style="margin:0; visibility:visible;"><span leaf="" style="visibility: visible; color:#333333; font-size:14px; line-height:1.7; font-weight:600;">场景</span></p></section>
+                  <section style="display:table-cell; vertical-align:top; box-sizing:border-box; padding:10px 8px; border-right:1px solid #d9d9d9; border-bottom:1px solid #d9d9d9; background:#f7f7f7; visibility:visible; word-break:break-word;"><p style="margin:0; visibility:visible;"><span leaf="" style="visibility: visible; color:#333333; font-size:14px; line-height:1.7; font-weight:600;">互动会不会消失</span></p></section>
+                  <section style="display:table-cell; vertical-align:top; box-sizing:border-box; padding:10px 8px; border-right:1px solid #d9d9d9; border-bottom:1px solid #d9d9d9; background:#f7f7f7; visibility:visible; word-break:break-word;"><p style="margin:0; visibility:visible;"><span leaf="" style="visibility: visible; color:#333333; font-size:14px; line-height:1.7; font-weight:600;">补充说明</span></p></section>
+                </section>
+                <section style="display:table-row; visibility:visible;">
+                  <section style="display:table-cell; vertical-align:top; box-sizing:border-box; padding:10px 8px; border-right:1px solid #d9d9d9; border-bottom:1px solid #d9d9d9; background:#ffffff; visibility:visible; word-break:break-word;"><p style="margin:0; visibility:visible;"><span leaf="" style="visibility: visible; color:#333333; font-size:14px; line-height:1.7;">单删</span></p></section>
+                  <section style="display:table-cell; vertical-align:top; box-sizing:border-box; padding:10px 8px; border-right:1px solid #d9d9d9; border-bottom:1px solid #d9d9d9; background:#ffffff; visibility:visible; word-break:break-word;"><p style="margin:0; visibility:visible;"><span leaf="" style="visibility: visible; color:#333333; font-size:14px; line-height:1.7;">不会</span></p></section>
+                  <section style="display:table-cell; vertical-align:top; box-sizing:border-box; padding:10px 8px; border-right:1px solid #d9d9d9; border-bottom:1px solid #d9d9d9; background:#ffffff; visibility:visible; word-break:break-word;"><p style="margin:0; visibility:visible;"><span leaf="" style="visibility: visible; color:#333333; font-size:14px; line-height:1.7;">历史点赞评论通常保留，对方未必察觉</span></p></section>
+                </section>
+                <section style="display:table-row; visibility:visible;">
+                  <section style="display:table-cell; vertical-align:top; box-sizing:border-box; padding:10px 8px; border-right:1px solid #d9d9d9; border-bottom:1px solid #d9d9d9; background:#ffffff; visibility:visible; word-break:break-word;"><p style="margin:0; visibility:visible;"><span leaf="" style="visibility: visible; color:#333333; font-size:14px; line-height:1.7;">互删后重加</span></p></section>
+                  <section style="display:table-cell; vertical-align:top; box-sizing:border-box; padding:10px 8px; border-right:1px solid #d9d9d9; border-bottom:1px solid #d9d9d9; background:#ffffff; visibility:visible; word-break:break-word;"><p style="margin:0; visibility:visible;"><span leaf="" style="visibility: visible; color:#333333; font-size:14px; line-height:1.7;">会恢复</span></p></section>
+                  <section style="display:table-cell; vertical-align:top; box-sizing:border-box; padding:10px 8px; border-right:1px solid #d9d9d9; border-bottom:1px solid #d9d9d9; background:#ffffff; visibility:visible; word-break:break-word;"><p style="margin:0; visibility:visible;"><span leaf="" style="visibility: visible; color:#333333; font-size:14px; line-height:1.7;">过去互动可原样归位</span></p></section>
+                </section>
+              </section>
+
+              <section style="margin: 18px 0; padding: 12px 14px; background: #fafafa; border-left: 3px solid #bdbdbd; visibility: visible;">
+                <p style="margin: 0; visibility: visible;">
+                  <span leaf="" style="visibility: visible; font-size: 15px; line-height: 1.85; color: #444444; font-style: italic;">删好友在人的直觉里像一刀切断，但在微信的系统逻辑里，它更像先收回权限，再慢慢处理痕迹。</span>
+                </p>
+              </section>
+
+              <div class="img-block">
+                <img
+                  alt="article body"
+                  src="https://images.unsplash.com/photo-1510511459019-5dda7724fd87?auto=format&fit=crop&w=1400&q=80"
+                />
+              </div>
+
+              <section style="margin: 16px 0; padding: 12px 14px; background: #fff7eb; border-left: 3px solid #d48806; visibility: visible;">
+                <p style="margin: 0; visibility: visible;">
+                  <span leaf="" style="visibility: visible; font-size: 14px; line-height: 1.8; color: #5c3b00;">如果你真的在意朋友圈可见范围，新增好友后应及时调整分组，否则旧设置不会自动覆盖新关系。</span>
+                </p>
+              </section>
+
+              <div class="footer-tip">提示：正文图片来源于网络，侵权请联系删除</div>
+            </div>
+          </div>
+        </article>
+      </section>
+    </div>
+  </body>
+</html>
