@@ -253,6 +253,38 @@
         line-height: 1.7;
       }
 
+      .list-block {
+        margin: 16px 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 10px;
+      }
+
+      .list-block li {
+        display: grid;
+        grid-template-columns: 18px 1fr;
+        gap: 10px;
+        align-items: start;
+      }
+
+      .list-bullet {
+        width: 18px;
+        color: #7a7a7a;
+        display: inline-block;
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1.8;
+        margin-top: 0;
+        text-align: left;
+      }
+
+      .list-text {
+        color: #2c2c2c;
+        font-size: 15px;
+        line-height: 1.8;
+      }
+
       @media (max-width: 980px) {
         .hero,
         .grid {
@@ -509,6 +541,71 @@
   "reason": "用于承接上一段规则说明"
 }</pre>
           </article>
+
+          <article class="panel">
+            <header class="panel-head">
+              <h3>Bullet List</h3>
+              <p>适合重点并列、规则拆解、行动建议</p>
+            </header>
+            <div class="preview">
+              <ul class="list-block">
+                <li>
+                  <span class="list-bullet">•</span>
+                  <span class="list-text">单方面删除好友，历史点赞和评论通常仍然保留，不会立刻消失。</span>
+                </li>
+                <li>
+                  <span class="list-bullet">•</span>
+                  <span class="list-text">双方互删后，对方留在你朋友圈的互动痕迹才会被隐藏。</span>
+                </li>
+                <li>
+                  <span class="list-bullet">•</span>
+                  <span class="list-text">如果后来重新加回好友，过去消失的互动仍有可能原样恢复。</span>
+                </li>
+              </ul>
+            </div>
+            <pre class="code">{
+  "type": "bullet_list",
+  "variant": "key_points",
+  "items": [
+    "单方面删除好友，历史点赞和评论通常仍然保留，不会立刻消失。",
+    "双方互删后，对方留在你朋友圈的互动痕迹才会被隐藏。",
+    "如果后来重新加回好友，过去消失的互动仍有可能原样恢复。"
+  ]
+}</pre>
+          </article>
+
+          <article class="panel">
+            <header class="panel-head">
+              <h3>Numbered List</h3>
+              <p>适合步骤、排序、递进结构</p>
+            </header>
+            <div class="preview">
+              <ul class="list-block">
+                <li>
+                  <span class="list-bullet">1</span>
+                  <span class="list-text">先确认这是单删还是互删，因为两种状态的互动留存逻辑完全不同。</span>
+                </li>
+                <li>
+                  <span class="list-bullet">2</span>
+                  <span class="list-text">再看朋友圈分组是否已更新，新加好友默认不会自动继承你过去的屏蔽意图。</span>
+                </li>
+                <li>
+                  <span class="list-bullet">3</span>
+                  <span class="list-text">最后再判断这是不是功能 bug，很多时候只是微信规则和直觉不一致。</span>
+                </li>
+              </ul>
+            </div>
+            <pre class="code">{
+  "type": "numbered_list",
+  "variant": "steps",
+  "items": [
+    "先确认这是单删还是互删，因为两种状态的互动留存逻辑完全不同。",
+    "再看朋友圈分组是否已更新，新加好友默认不会自动继承你过去的屏蔽意图。",
+    "最后再判断这是不是功能 bug，很多时候只是微信规则和直觉不一致。"
+  ]
+}</pre>
+          </article>
+
         </div>
       </section>
 

@@ -360,6 +360,73 @@
     return section;
   }
 
+  function createListItem(prefixText, itemText, itemIndex) {
+    const section = document.createElement('section');
+    section.setAttribute(
+      'style',
+      itemIndex === 0
+        ? 'margin: 0 0 10px 0; visibility: visible;'
+        : 'margin: 10px 0 0 0; visibility: visible;',
+    );
+    const row = document.createElement('section');
+    row.setAttribute('style', 'font-size:0; visibility:visible;');
+
+    const prefix = document.createElement('section');
+    prefix.setAttribute(
+      'style',
+      'display:inline-block; width:18px; vertical-align:top; visibility:visible;',
+    );
+    const prefixP = document.createElement('p');
+    prefixP.setAttribute('style', 'margin:0; visibility:visible;');
+    prefixP.appendChild(
+      createLeafSpan(
+        prefixText,
+        'visibility: visible; color:#7a7a7a; font-size:14px; line-height:1.8; font-weight:700;',
+      ),
+    );
+    prefix.appendChild(prefixP);
+
+    const content = document.createElement('section');
+    content.setAttribute(
+      'style',
+      'display:inline-block; width:calc(100% - 18px); vertical-align:top; visibility:visible;',
+    );
+    const contentP = document.createElement('p');
+    contentP.setAttribute('style', 'margin:0; visibility:visible;');
+    contentP.appendChild(
+      createLeafSpan(
+        itemText,
+        'visibility: visible; color:#2c2c2c; font-size:15px; line-height:1.8;',
+      ),
+    );
+    content.appendChild(contentP);
+
+    row.appendChild(prefix);
+    row.appendChild(content);
+    section.appendChild(row);
+    return section;
+  }
+
+  function createBulletList(block) {
+    const outer = document.createElement('section');
+    outer.setAttribute('style', 'margin: 16px 0; visibility: visible;');
+    const items = Array.isArray(block.items) ? block.items : [];
+    items.forEach((itemText, itemIndex) => {
+      outer.appendChild(createListItem('•', String(itemText ?? ''), itemIndex));
+    });
+    return outer;
+  }
+
+  function createNumberedList(block) {
+    const outer = document.createElement('section');
+    outer.setAttribute('style', 'margin: 16px 0; visibility: visible;');
+    const items = Array.isArray(block.items) ? block.items : [];
+    items.forEach((itemText, itemIndex) => {
+      outer.appendChild(createListItem(String(itemIndex + 1), String(itemText ?? ''), itemIndex));
+    });
+    return outer;
+  }
+
   function createImageAttributionNote() {
     const section = document.createElement('section');
     section.setAttribute('style', 'margin: 18px 0 0 0; visibility: visible;');
@@ -441,6 +508,10 @@
         return createNote(block);
       case 'quote':
         return createQuote(block);
+      case 'bullet_list':
+        return createBulletList(block);
+      case 'numbered_list':
+        return createNumberedList(block);
       case 'pseudo_table':
         return createPseudoTable(block);
       case 'paragraph':

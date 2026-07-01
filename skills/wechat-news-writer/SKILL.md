@@ -184,6 +184,8 @@ description: 根据用户提供的主题、核心信息和写作目标，产出�
 - `paragraph`
 - `note`
 - `quote`
+- `bullet_list`
+- `numbered_list`
 - `pseudo_table`
 - `image`
 
@@ -288,7 +290,39 @@ description: 根据用户提供的主题、核心信息和写作目标，产出�
 { "type": "quote", "text": "适合做金句或观点摘录的内容", "variant": "highlight_quote" }
 ```
 
-### 5. `pseudo_table`
+### 5. `bullet_list`
+
+适合重点并列、规则拆解、结论归纳、行动建议。
+
+```json
+{
+  "type": "bullet_list",
+  "variant": "key_points",
+  "items": [
+    "单方面删除好友，历史互动通常保留。",
+    "双方互删后，对方痕迹才会消失。",
+    "重新加回好友后，互动仍可能恢复。"
+  ]
+}
+```
+
+### 6. `numbered_list`
+
+适合步骤、排序、递进逻辑、分点说明。
+
+```json
+{
+  "type": "numbered_list",
+  "variant": "steps",
+  "items": [
+    "先判断是单删还是互删。",
+    "再确认分组是否已更新。",
+    "最后再看是不是规则导致的可见性变化。"
+  ]
+}
+```
+
+### 7. `pseudo_table`
 
 只在确实需要信息对比时使用，绝不要退回原生 `table`。
 
@@ -304,7 +338,7 @@ description: 根据用户提供的主题、核心信息和写作目标，产出�
 }
 ```
 
-### 6. `image`
+### 8. `image`
 
 正文图片不再默认放在 `image_suggestions` 里事后处理。  
 如果图片需要进入正文，请直接把图片作为一个 block 放进 `blocks` 数组中，用它的位置表达“应该插在第几段之后”。
@@ -329,6 +363,7 @@ description: 根据用户提供的主题、核心信息和写作目标，产出�
 - `variant`: 样式变体名，建议填写
 - `emphasis`: `low | normal | high`，用于强调强度
 - `tone`: `neutral | strong | warm`，用于语气/视觉倾向
+- `items`: 仅 `bullet_list/numbered_list` 使用，数组，每一项是一条列表内容
 - `columns`: 仅 `pseudo_table` 使用
 - `rows`: 仅 `pseudo_table` 使用
 - `query`: 仅 `image` 常用，记录搜索关键词
@@ -423,6 +458,16 @@ description: 根据用户提供的主题、核心信息和写作目标，产出�
   适合金句、观点摘录
 - `data_point`
   适合把关键数字单独提出来
+
+### `bullet_list` 可用变体
+
+- `key_points`
+  适合重点并列、结论归纳
+
+### `numbered_list` 可用变体
+
+- `steps`
+  适合步骤、顺序和递进结构
 
 ### `pseudo_table` 可用变体
 
