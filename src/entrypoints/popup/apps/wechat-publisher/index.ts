@@ -3,13 +3,20 @@ import './style.css';
 
 interface WechatArticlePayload {
   title_candidates?: string[];
+  selected_title?: string;
   author?: string;
   author_name?: string;
   summary?: string;
   digest?: string;
+  theme?: {
+    accent_color?: string;
+    accent_name?: string;
+    reason?: string;
+  };
   cover_image?: {
     query?: string;
     image_url?: string;
+    source_name?: string;
     source_page?: string;
     reason?: string;
   };
@@ -38,15 +45,37 @@ async function callBridge<T>(tabId: number, method: string, ...args: unknown[]):
     target: { tabId },
     func: (m: string, a: unknown[]) => {
       const bridge = (window as any).__ruoruoWechatPublisher__;
-      if (!bridge || typeof bridge[m] !== 'function') throw new Error('桥接脚本未就绪');
-      return bridge[m](...a);
+      if (!bridge || typeof bridge[m] !== 'function') {
+        return { ok: false, error: '桥接脚本未就绪' };
+      }
+      try {
+        const value = bridge[m](...a);
+        if (value && typeof value.then === 'function') {
+          return value
+            .then((data: unknown) => ({ ok: true, data }))
+            .catch((error: unknown) => ({
+              ok: false,
+              error: error instanceof Error ? error.message : String(error),
+            }));
+        }
+        return { ok: true, data: value };
+      } catch (error) {
+        return {
+          ok: false,
+          error: error instanceof Error ? error.message : String(error),
+        };
+      }
     },
     args: [method, args],
     world: 'MAIN',
   });
   const [res] = results ?? [];
   if (!res) throw new Error('页面脚本未返回结果');
-  return res.result as T;
+  if (!res.result || typeof res.result !== 'object') throw new Error('页面脚本未返回有效结果');
+  const payload = res.result as { ok?: boolean; data?: T; error?: string };
+  if (!payload.ok) throw new Error(payload.error || '页面脚本执行失败');
+  if (payload.data == null) throw new Error('页面脚本未返回有效结果');
+  return payload.data;
 }
 
 function parsePayload(raw: string): WechatArticlePayload {
@@ -54,6 +83,9 @@ function parsePayload(raw: string): WechatArticlePayload {
   if (!parsed || typeof parsed !== 'object') throw new Error('JSON 结构无效');
   if (!Array.isArray(parsed.title_candidates) || parsed.title_candidates.length !== 3) {
     throw new Error('title_candidates 必须正好提供 3 个标题');
+  }
+  if (!parsed.theme || typeof parsed.theme !== 'object' || !String(parsed.theme.accent_color || '').trim()) {
+    throw new Error('缺少 theme.accent_color');
   }
   if (!Array.isArray(parsed.blocks)) {
     throw new Error('缺少 blocks 数组');
@@ -291,6 +323,10 @@ const wechatPublisherApp: PopupApp = {
           saveDraftResult: { success: boolean; error?: string } | null;
         }>(tabId, 'insertPayload', payload, options);
 
+        if (!result || typeof result !== 'object') {
+          throw new Error('页面脚本未返回有效结果');
+        }
+
         const successImages = (result.imageResults || []).filter((item) => item.success).length;
         const totalImages = (result.imageResults || []).length;
         const statusParts: string[] = [];
@@ -375,10 +411,13 @@ const wechatPublisherApp: PopupApp = {
         setStatus('没有待插入的 JSON，请先点击“解析JSON”。', 'error');
         return;
       }
-      const chosenTitle = pendingPayload.title_candidates?.[selectedTitleIndex];
+      const originalTitles = Array.isArray(pendingPayload.title_candidates)
+        ? pendingPayload.title_candidates.filter((title): title is string => typeof title === 'string' && !!title.trim())
+        : [];
+      const chosenTitle = originalTitles[selectedTitleIndex];
       const payloadForInsert: WechatArticlePayload = {
         ...pendingPayload,
-        title_candidates: chosenTitle ? [chosenTitle] : pendingPayload.title_candidates,
+        selected_title: chosenTitle || pendingPayload.selected_title || '',
       };
       closeTitleModal();
       await runInsert(

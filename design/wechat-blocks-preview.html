@@ -16,6 +16,8 @@
         --accent-soft: #f5f5f5;
         --code-bg: #f7f7f7;
         --code-ink: #222222;
+        --article-accent: #6c7b95;
+        --article-accent-soft: rgba(108, 123, 149, 0.14);
       }
 
       * {
@@ -219,6 +221,8 @@
         font-size: 30px;
         line-height: 1.22;
         letter-spacing: -0.04em;
+        color: #141414;
+        font-weight: 700;
       }
 
       .preview-label {
@@ -244,21 +248,150 @@
         color: #8b8b8b;
         font-size: 12px;
         line-height: 1.6;
+        text-align: center;
       }
 
       .footer-tip {
-        margin-top: 18px;
+        margin: 8px 0 0;
         color: #9ca3af;
+        font-size: 12px;
+        line-height: 1.7;
+        text-align: center;
+      }
+
+      .inline-gold {
+        color: var(--article-accent);
+        font-weight: 700;
+      }
+
+      .inline-underline {
+        font-weight: 700;
+        text-decoration: underline;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 2px;
+      }
+
+      .center-section-num {
+        margin: 22px 8px 6px;
+        text-align: left;
+        line-height: 1.4;
+      }
+
+      .center-section-num span {
+        display: inline-block;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--article-accent);
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        font-family: "Optima-Regular", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      }
+
+      .center-section-title {
+        margin: 0 8px 22px;
+        text-align: left;
+        line-height: 1.6;
+      }
+
+      .center-section-title span {
+        font-size: 19px;
+        font-weight: 700;
+        color: rgba(0, 0, 0, 0.9);
+        letter-spacing: 1px;
+        font-family: "Optima-Regular", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      }
+
+      .note-inline {
+        margin: 10px 8px 22px;
+        padding-left: 10px;
+        border-left: 1.5px solid #d7dde6;
+      }
+
+      .note-inline.is-warm {
+        border-left-color: color-mix(in srgb, var(--article-accent) 48%, white);
+      }
+
+      .note-inline p {
+        margin: 0;
+      }
+
+      .note-inline span {
+        font-size: 13px;
+        line-height: 1.85;
+        color: #666;
+        letter-spacing: 0.6px;
+        font-family: "Optima-Regular", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      }
+
+      .note-prefix {
+        color: var(--article-accent);
+        font-weight: 600;
+      }
+
+      .theme-card {
+        margin: 0 0 18px;
+        padding: 14px 16px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #ffffff;
+      }
+
+      .theme-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 10px;
+      }
+
+      .theme-swatch {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        background: var(--article-accent);
+        box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+        flex: 0 0 auto;
+      }
+
+      .theme-meta strong {
+        display: block;
+        font-size: 14px;
+        color: #222;
+      }
+
+      .theme-meta span {
+        display: block;
+        margin-top: 2px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .theme-card p {
+        margin: 0;
+        color: #4c4c4c;
+        font-size: 13px;
+        line-height: 1.75;
+      }
+
+      .theme-hints {
+        margin: 10px 0 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 6px;
+      }
+
+      .theme-hints li {
+        color: #626262;
         font-size: 12px;
         line-height: 1.7;
       }
 
       .list-block {
-        margin: 16px 0;
+        margin: 16px 8px 24px;
         padding: 0;
         list-style: none;
         display: grid;
-        gap: 10px;
+        gap: 12px;
       }
 
       .list-block li {
@@ -280,9 +413,11 @@
       }
 
       .list-text {
-        color: #2c2c2c;
+        color: rgba(0, 0, 0, 0.9);
         font-size: 15px;
-        line-height: 1.8;
+        line-height: 1.75;
+        letter-spacing: 1px;
+        font-family: "Optima-Regular", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
       }
 
       @media (max-width: 980px) {
@@ -307,7 +442,7 @@
           <p class="hero-desc">
             这个页面按当前
             <code>wechat-publisher-bridge.js</code>
-            的真实样式映射制作。它不是新的视觉提案，而是让你快速看到每种
+            的真实样式映射制作。现在的方向不是“做出组件感”，而是尽量贴近真人会发的公众号正文。它不是新的视觉提案，而是让你快速看到每种
             <code>block</code>
             在最终文章中的落点和层次。
           </p>
@@ -315,7 +450,7 @@
             <li>段落：`lead` / `body` / `analysis`</li>
             <li>标题：`section_title` / `section_title_strong`</li>
             <li>提示：`insight_box` / `warning_soft`</li>
-            <li>引用：`highlight_quote` / `data_point`</li>
+            <li>数据强调：`data_point`</li>
             <li>表格：`compare_grid` / `fact_sheet`</li>
             <li>图片：正文图 + 底部来源提示</li>
           </ul>
@@ -327,14 +462,18 @@
           <div class="schema-tags">
             <span>title_candidates</span>
             <span>summary</span>
-            <span>cover_image</span>
+            <span>theme</span>
             <span>blocks</span>
             <span>references</span>
           </div>
           <pre class="code">{
   "title_candidates": ["标题1", "标题2", "标题3"],
   "summary": "三句话以内摘要",
-  "cover_image": { "image_url": "..." },
+  "theme": {
+    "accent_color": "#6c7b95",
+    "accent_name": "冷静灰蓝",
+    "reason": "适合规则解读、产品观察类内容"
+  },
   "blocks": [
     { "type": "paragraph", "variant": "lead", "text": "..." },
     { "type": "heading", "variant": "section_title", "text": "..." },
@@ -354,23 +493,54 @@
         <div class="grid">
           <article class="panel">
             <header class="panel-head">
+              <h3>Theme</h3>
+              <p>每篇文章先生成一套主题色，再统一驱动强调样式</p>
+            </header>
+            <div class="preview">
+              <div class="theme-card">
+                <div class="theme-row">
+                  <div class="theme-swatch"></div>
+                  <div class="theme-meta">
+                    <strong>冷静灰蓝 · #6c7b95</strong>
+                    <span>适合规则解读、产品观察、信息整理类文章</span>
+                  </div>
+                </div>
+                <p>主题色不应该是固定模板色，而应该由 AI 根据文章题材决定，再统一作用到分节引导、轻提醒前缀和正文内联强调上。</p>
+                <ul class="theme-hints">
+                  <li>推荐：灰蓝、灰棕、灰绿、酒红、青灰这类低饱和颜色。</li>
+                  <li>避免：荧光绿、亮紫、玫红、纯橙、饱和宝蓝这类高刺激颜色。</li>
+                  <li>默认一篇文章只保留 1 个主强调色，不做多色拼贴。</li>
+                </ul>
+              </div>
+            </div>
+            <pre class="code">{
+  "theme": {
+    "accent_color": "#6c7b95",
+    "accent_name": "冷静灰蓝",
+    "reason": "适合规则解读、产品观察类内容"
+  }
+}</pre>
+          </article>
+
+          <article class="panel">
+            <header class="panel-head">
               <h3>Paragraph</h3>
               <p>`lead` / `body` / `analysis`</p>
             </header>
             <div class="preview">
-              <section style="margin: 0 0 16px 0; visibility: visible;">
+              <section style="margin: 0 8px 24px 8px; visibility: visible;">
                 <p style="margin: 0; visibility: visible;">
-                  <span leaf="" style="visibility: visible; font-size: 16px; line-height: 1.85; color: #202020; font-weight: 500;">6月26日，微信官方首次把朋友圈互动留存规则讲得这么直白：单删不清痕迹，互删才会让对方点赞评论消失。</span>
+                  <span leaf="" style="visibility: visible; font-size: 15px; line-height: 1.75; color: rgba(0, 0, 0, 0.9); letter-spacing: 1px; font-family: Optima-Regular, PingFangTC-light;">6月26日，微信官方首次把朋友圈互动留存规则讲得这么直白：单删不清痕迹，互删才会让对方点赞评论消失。</span>
                 </p>
               </section>
-              <section style="margin: 0 0 14px 0; visibility: visible;">
+              <section style="margin: 0 8px 24px 8px; visibility: visible;">
                 <p style="margin: 0; visibility: visible;">
-                  <span leaf="" style="visibility: visible; font-size: 15px; line-height: 1.8; color: #2c2c2c;">这不是一个只影响“删好友”的小功能，而是在重新定义微信怎样处理熟人关系的历史记录。</span>
+                  <span leaf="" style="visibility: visible; font-size: 15px; line-height: 1.75; color: rgba(0, 0, 0, 0.9); letter-spacing: 1px; font-family: Optima-Regular, PingFangTC-light;">这不是一个只影响“删好友”的小功能，而是在重新定义微信怎样处理熟人关系的历史记录。</span>
                 </p>
               </section>
-              <section style="margin: 0 0 14px 0; visibility: visible;">
+              <section style="margin: 0 8px 24px 8px; visibility: visible;">
                 <p style="margin: 0; visibility: visible;">
-                  <span leaf="" style="visibility: visible; font-size: 15px; line-height: 1.85; color: #3a3a3a;">从产品逻辑看，微信并没有把“删除好友”理解成“关系痕迹立即归零”，而是保留了一个更缓慢的社交过渡层。</span>
+                  <span leaf="" style="visibility: visible; font-size: 15px; line-height: 1.75; color: rgba(0, 0, 0, 0.9); letter-spacing: 1px; font-family: Optima-Regular, PingFangTC-light;">从产品逻辑看，微信并没有把“删除好友”理解成“关系痕迹立即归零”，而是保留了一个更缓慢的社交过渡层。</span>
                 </p>
               </section>
             </div>
@@ -387,16 +557,13 @@
               <p>`section_title` / `section_title_strong`</p>
             </header>
             <div class="preview">
-              <section style="margin: 22px 0 10px 0; visibility: visible;">
+              <section style="margin: 24px 8px 10px 8px; visibility: visible;">
                 <p style="margin: 0; visibility: visible;">
-                  <strong style="font-size: 17px; line-height: 1.6; color: #111111; font-weight: 600; visibility: visible;">先看最关键的规则：单删和互删，结果完全不一样</strong>
+                  <strong style="font-size: 17px; line-height: 1.75; color: rgba(0, 0, 0, 0.9); font-weight: 600; letter-spacing: 1px; visibility: visible; font-family: Optima-Regular, PingFangTC-light;">先看最关键的规则：单删和互删，结果完全不一样</strong>
                 </p>
               </section>
-              <section style="margin: 26px 0 12px 0; padding-left: 10px; border-left: 4px solid #111111; visibility: visible;">
-                <p style="margin: 0; visibility: visible;">
-                  <strong style="font-size: 18px; line-height: 1.6; color: #111111; font-weight: 700; visibility: visible;">为什么这件事会让很多人破防？</strong>
-                </p>
-              </section>
+              <div class="center-section-num"><span>Part 01</span></div>
+              <div class="center-section-title"><span>为什么这件事会让很多人破防？</span></div>
             </div>
             <pre class="code">[
   { "type": "heading", "variant": "section_title", "text": "..." },
@@ -407,17 +574,17 @@
           <article class="panel">
             <header class="panel-head">
               <h3>Note</h3>
-              <p>`insight_box` / `warning_soft`</p>
+              <p>`insight_box` / `warning_soft`，更像轻旁注而不是提示卡</p>
             </header>
             <div class="preview">
-              <section style="margin: 16px 0; padding: 12px 14px; background: #f7f8fa; border-left: 3px solid #222222; visibility: visible;">
-                <p style="margin: 0; visibility: visible;">
-                  <span leaf="" style="visibility: visible; font-size: 14px; line-height: 1.8; color: #333333;">一个关键细节是：单删状态下，你仍然可以回复对方旧评论，但那条回复在重新加回好友前只对你自己可见。</span>
+              <section class="note-inline">
+                <p>
+                  <span><span class="note-prefix">补充：</span>单删状态下，你仍然可以回复对方旧评论，但那条回复在重新加回好友前只对你自己可见。</span>
                 </p>
               </section>
-              <section style="margin: 16px 0; padding: 12px 14px; background: #fff7eb; border-left: 3px solid #d48806; visibility: visible;">
-                <p style="margin: 0; visibility: visible;">
-                  <span leaf="" style="visibility: visible; font-size: 14px; line-height: 1.8; color: #5c3b00;">如果你真的在意朋友圈可见范围，新增好友后应尽快调整分组，否则旧设置不会自动套用到新关系上。</span>
+              <section class="note-inline is-warm">
+                <p>
+                  <span><span class="note-prefix">提醒：</span>如果你真的在意朋友圈可见范围，新增好友后应尽快调整分组，否则旧设置不会自动套用到新关系上。</span>
                 </p>
               </section>
             </div>
@@ -429,23 +596,22 @@
 
           <article class="panel">
             <header class="panel-head">
-              <h3>Quote</h3>
-              <p>`highlight_quote` / `data_point`</p>
+              <h3>Data Point</h3>
+              <p>`quote` / `data_point`</p>
             </header>
             <div class="preview">
-              <section style="margin: 18px 0; padding: 12px 14px; background: #fafafa; border-left: 3px solid #bdbdbd; visibility: visible;">
+              <section style="margin: 18px 8px; padding: 10px 0; border-top: 1px solid #ececec; border-bottom: 1px solid #ececec; visibility: visible;">
                 <p style="margin: 0; visibility: visible;">
-                  <span leaf="" style="visibility: visible; font-size: 15px; line-height: 1.85; color: #444444; font-style: italic;">关系可以断，痕迹不一定立刻清。微信这次真正暴露的，是它处理熟人社交的底层态度。</span>
+                  <span leaf="" style="visibility: visible; font-size: 15px; line-height: 1.75; color: rgba(0, 0, 0, 0.9); font-weight: 600; letter-spacing: 1px; font-family: Optima-Regular, PingFangTC-light;">微信及 WeChat 合并月活跃账户已达 14.32 亿；每天约 7.8 亿用户进入朋友圈。</span>
                 </p>
               </section>
-              <section style="margin: 18px 0; padding: 14px 16px; background: #f5f7ff; border: 1px solid #d6defa; visibility: visible;">
+              <section style="margin: 0 8px 24px 8px; visibility: visible;">
                 <p style="margin: 0; visibility: visible;">
-                  <span leaf="" style="visibility: visible; font-size: 15px; line-height: 1.85; color: #223a70; font-weight: 600;">微信及 WeChat 合并月活跃账户已达 14.32 亿；每天约 7.8 亿用户进入朋友圈。</span>
+                  <span leaf="" style="visibility: visible; font-size: 15px; line-height: 1.75; color: rgba(0, 0, 0, 0.9); letter-spacing: 1px; font-family: Optima-Regular, PingFangTC-light;">这种块只适合提炼数字或单句事实，不适合承载情绪化观点，否则很容易显得像模板化 AI 稿。</span>
                 </p>
               </section>
             </div>
             <pre class="code">[
-  { "type": "quote", "variant": "highlight_quote", "text": "..." },
   { "type": "quote", "variant": "data_point", "text": "..." }
 ]</pre>
           </article>
@@ -528,17 +694,46 @@
                   alt="WeChat body image preview"
                   src="https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=1200&q=80"
                 />
-                <div class="img-caption">图片 block 会按所在位置插入正文，图片下方不默认加 caption。</div>
+                <div class="img-caption">资料来源：wechat.com</div>
               </div>
-              <div class="footer-tip">提示：正文图片来源于网络，侵权请联系删除</div>
             </div>
             <pre class="code">{
   "type": "image",
   "variant": "body_image",
   "query": "微信 社交 手机界面",
   "image_url": "https://...",
+  "source_name": "wechat.com",
   "source_page": "https://...",
   "reason": "用于承接上一段规则说明"
+}</pre>
+          </article>
+
+          <article class="panel">
+            <header class="panel-head">
+              <h3>Inline Emphasis</h3>
+              <p>更接近高阅读稿的正文内强调</p>
+            </header>
+            <div class="preview">
+              <section style="margin: 0 8px 24px; line-height: 1.75;">
+                <span style="font-size: 15px; color: rgba(0, 0, 0, 0.9); letter-spacing: 1px; font-family: Optima-Regular, PingFangTC-light;">根据国家统计局发布的《2025年中国统计年鉴》数据，<span class="inline-underline">2024年一人户家庭占比约为19.5%</span>。</span>
+              </section>
+              <section style="margin: 0 8px 24px; line-height: 1.75;">
+                <span style="font-size: 15px; color: rgba(0, 0, 0, 0.9); letter-spacing: 1px; font-family: Optima-Regular, PingFangTC-light;">而在年轻社交平台上，“独居生活”相关话题在今年 <span class="inline-gold">4月激增4亿</span>，早已不是小众讨论。</span>
+              </section>
+              <section style="margin: 0 8px 24px; line-height: 1.75;">
+                <span style="font-size: 15px; color: rgba(0, 0, 0, 0.9); letter-spacing: 1px; font-family: Optima-Regular, PingFangTC-light;">对苹果来说，<span style="font-weight: 700;">真正难处理的</span>不是新机外观被提前看到，而是<span class="inline-gold inline-underline">供应链关系被看穿</span>。</span>
+              </section>
+            </div>
+            <pre class="code">{
+  "type": "paragraph",
+  "variant": "body",
+  "segments": [
+    { "text": "对苹果来说，" },
+    { "text": "真正难处理的", "marks": ["bold"] },
+    { "text": "不是新机外观被提前看到，而是" },
+    { "text": "供应链关系被看穿", "marks": ["accent", "underline"] },
+    { "text": "。" }
+  ]
 }</pre>
           </article>
 
@@ -619,30 +814,22 @@
           <div class="preview">
             <div class="article">
               <p class="preview-label">完整文章效果</p>
-              <img
-                class="cover"
-                alt="article cover"
-                src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=1600&q=80"
-              />
               <h3 class="article-title">微信把“单删互删”讲透了，但真正刺痛人的不是规则</h3>
 
-              <section style="margin: 0 0 16px 0; visibility: visible;">
+              <section style="margin: 0 8px 24px 8px; visibility: visible;">
                 <p style="margin: 0; visibility: visible;">
-                  <span leaf="" style="visibility: visible; font-size: 16px; line-height: 1.85; color: #202020; font-weight: 500;">6月26日，微信官方账号“微信派”发布《几个关于朋友圈的冷知识》，终于把很多人争论已久的两个问题讲明白了。</span>
+                  <span leaf="" style="visibility: visible; font-size: 15px; line-height: 1.75; color: rgba(0, 0, 0, 0.9); letter-spacing: 1px; font-family: Optima-Regular, PingFangTC-light;">6月26日，微信官方账号“微信派”发布《几个关于朋友圈的冷知识》，终于把很多人争论已久的两个问题讲明白了。</span>
                 </p>
               </section>
 
-              <section style="margin: 0 0 14px 0; visibility: visible;">
+              <section style="margin: 0 8px 24px 8px; visibility: visible;">
                 <p style="margin: 0; visibility: visible;">
-                  <span leaf="" style="visibility: visible; font-size: 15px; line-height: 1.8; color: #2c2c2c;">如果只看结论很简单：单删，互动通常还在；互删，对方痕迹才会消失。但真正值得讨论的，是微信为什么始终把“关系结束”处理得比人的情绪慢半拍。</span>
+                  <span leaf="" style="visibility: visible; font-size: 15px; line-height: 1.75; color: rgba(0, 0, 0, 0.9); letter-spacing: 1px; font-family: Optima-Regular, PingFangTC-light;">如果只看结论很简单：单删，互动通常还在；互删，对方痕迹才会消失。但真正值得讨论的，是微信为什么始终把<span class="inline-underline">“关系结束”处理得比人的情绪慢半拍</span>。</span>
                 </p>
               </section>
 
-              <section style="margin: 22px 0 10px 0; visibility: visible;">
-                <p style="margin: 0; visibility: visible;">
-                  <strong style="font-size: 17px; line-height: 1.6; color: #111111; font-weight: 600; visibility: visible;">先看最关键的规则：单删和互删，结果完全不一样</strong>
-                </p>
-              </section>
+              <div class="center-section-num"><span>Part 01</span></div>
+              <div class="center-section-title"><span>先看最关键的规则：单删和互删，结果完全不一样</span></div>
 
               <section style="margin: 16px 0; border-top: 1px solid #d9d9d9; border-left: 1px solid #d9d9d9; visibility: visible; display:table; width:100%; table-layout:fixed; border-collapse:collapse;">
                 <section style="display:table-row; visibility:visible;">
@@ -662,9 +849,21 @@
                 </section>
               </section>
 
-              <section style="margin: 18px 0; padding: 12px 14px; background: #fafafa; border-left: 3px solid #bdbdbd; visibility: visible;">
+              <section style="margin: 0 8px 24px 8px; visibility: visible;">
                 <p style="margin: 0; visibility: visible;">
-                  <span leaf="" style="visibility: visible; font-size: 15px; line-height: 1.85; color: #444444; font-style: italic;">删好友在人的直觉里像一刀切断，但在微信的系统逻辑里，它更像先收回权限，再慢慢处理痕迹。</span>
+                  <span leaf="" style="visibility: visible; font-size: 15px; line-height: 1.75; color: rgba(0, 0, 0, 0.9); letter-spacing: 1px; font-family: Optima-Regular, PingFangTC-light;">删好友在人的直觉里像一刀切断，但在微信的系统逻辑里，它更像先收回权限，再慢慢处理痕迹。这也是为什么很多人看到规则说明后，真正难受的并不是功能本身，而是那种关系没有被系统立即清零的滞后感。</span>
+                </p>
+              </section>
+
+              <section style="margin: 24px 8px 10px 8px; visibility: visible;">
+                <p style="margin: 0; visibility: visible;">
+                  <strong style="font-size: 17px; line-height: 1.75; color: rgba(0, 0, 0, 0.9); font-weight: 600; letter-spacing: 1px; visibility: visible; font-family: Optima-Regular, PingFangTC-light;">一个经常被忽略的细节</strong>
+                </p>
+              </section>
+
+              <section style="margin: 0 8px 24px 8px; visibility: visible;">
+                <p style="margin: 0; visibility: visible;">
+                  <span leaf="" style="visibility: visible; font-size: 15px; line-height: 1.75; color: rgba(0, 0, 0, 0.9); letter-spacing: 1px; font-family: Optima-Regular, PingFangTC-light;">单删状态下，你依然可以回复对方以前留在朋友圈里的评论，只不过这条回复更像一个只对自己可见的记录。直到双方重新加回好友，它才会重新回到对方视野里。这种设计很微信：它不急着把一段关系彻底抹平，而是把很多痕迹先悬在那里。</span>
                 </p>
               </section>
 
@@ -673,11 +872,18 @@
                   alt="article body"
                   src="https://images.unsplash.com/photo-1510511459019-5dda7724fd87?auto=format&fit=crop&w=1400&q=80"
                 />
+                <div class="img-caption">（图片来源：wechat.com）</div>
               </div>
 
-              <section style="margin: 16px 0; padding: 12px 14px; background: #fff7eb; border-left: 3px solid #d48806; visibility: visible;">
+              <section class="note-inline is-warm">
+                <p>
+                  <span><span class="note-prefix">提醒：</span>如果你真的在意朋友圈可见范围，新增好友后应及时调整分组，否则旧设置不会自动覆盖新关系。</span>
+                </p>
+              </section>
+
+              <section style="margin: 0 8px 24px 8px; visibility: visible;">
                 <p style="margin: 0; visibility: visible;">
-                  <span leaf="" style="visibility: visible; font-size: 14px; line-height: 1.8; color: #5c3b00;">如果你真的在意朋友圈可见范围，新增好友后应及时调整分组，否则旧设置不会自动覆盖新关系。</span>
+                  <span leaf="" style="visibility: visible; font-size: 15px; line-height: 1.75; color: rgba(0, 0, 0, 0.9); letter-spacing: 1px; font-family: Optima-Regular, PingFangTC-light;">从这个角度看，朋友圈规则讲的从来不只是技术细节。它真正影响的是，人在处理熟人关系时，到底还能不能保留一点缓冲地带。对很多用户来说，刺痛感并不来自规则本身，而是来自微信把那些<span class="inline-gold">原本以为已经结束的痕迹</span>，又悄悄留在了原地。</span>
                 </p>
               </section>
 

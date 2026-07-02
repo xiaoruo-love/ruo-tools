@@ -1,75 +1,70 @@
 (function () {
-  const BRIDGE_VERSION = '2026-07-01-v3';
+  const BRIDGE_VERSION = '2026-07-02-v2';
   if (window.__ruoruoWechatPublisher__?.version === BRIDGE_VERSION) return;
 
   const BLOCK_STYLES = {
     paragraph: {
       lead: {
-        section: 'margin: 0 0 16px 0; visibility: visible;',
+        section: 'margin: 0 8px 24px 8px; visibility: visible;',
         p: 'margin: 0; visibility: visible;',
-        span: 'visibility: visible; font-size: 16px; line-height: 1.85; color: #202020; font-weight: 500;',
+        span: 'visibility: visible; font-size: 15px; line-height: 1.75; color: rgba(0, 0, 0, 0.9); letter-spacing: 1px; font-family: Optima-Regular, PingFangTC-light; font-weight: 500;',
       },
       body: {
-        section: 'margin: 0 0 14px 0; visibility: visible;',
+        section: 'margin: 0 8px 24px 8px; visibility: visible;',
         p: 'margin: 0; visibility: visible;',
-        span: 'visibility: visible; font-size: 15px; line-height: 1.8; color: #2c2c2c;',
+        span: 'visibility: visible; font-size: 15px; line-height: 1.75; color: rgba(0, 0, 0, 0.9); letter-spacing: 1px; font-family: Optima-Regular, PingFangTC-light;',
       },
       analysis: {
-        section: 'margin: 0 0 14px 0; visibility: visible;',
+        section: 'margin: 0 8px 24px 8px; visibility: visible;',
         p: 'margin: 0; visibility: visible;',
-        span: 'visibility: visible; font-size: 15px; line-height: 1.85; color: #3a3a3a;',
+        span: 'visibility: visible; font-size: 15px; line-height: 1.75; color: rgba(0, 0, 0, 0.9); letter-spacing: 1px; font-family: Optima-Regular, PingFangTC-light;',
       },
     },
     heading: {
       section_title: {
-        section: 'margin: 22px 0 10px 0; visibility: visible;',
+        section: 'margin: 24px 8px 10px 8px; visibility: visible;',
         p: 'margin: 0; visibility: visible;',
-        strong: 'font-size: 17px; line-height: 1.6; color: #111111; font-weight: 600; visibility: visible;',
+        strong: 'font-size: 17px; line-height: 1.75; color: rgba(0, 0, 0, 0.9); font-weight: 600; letter-spacing: 1px; visibility: visible; font-family: Optima-Regular, PingFangTC-light;',
       },
       section_title_strong: {
-        section: 'margin: 26px 0 12px 0; padding-left: 10px; border-left: 4px solid #111111; visibility: visible;',
-        p: 'margin: 0; visibility: visible;',
-        strong: 'font-size: 18px; line-height: 1.6; color: #111111; font-weight: 700; visibility: visible;',
+        badgeSection:
+          'margin: 22px 8px 6px 8px; text-align: left; line-height: 1.4; visibility: visible;',
+        badgeSpan:
+          'display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; visibility: visible; font-family: Optima-Regular, PingFangTC-light;',
+        titleSection: 'margin: 0 8px 22px 8px; text-align: left; line-height: 1.6; visibility: visible;',
+        titleSpan:
+          'font-size: 19px; font-weight: 700; color: rgba(0, 0, 0, 0.9); letter-spacing: 1px; visibility: visible; font-family: Optima-Regular, PingFangTC-light;',
       },
     },
     note: {
       insight_box: {
-        section:
-          'margin: 16px 0; padding: 12px 14px; background: #f7f8fa; border-left: 3px solid #222222; visibility: visible;',
+        section: 'margin: 10px 8px 22px 8px; padding-left: 10px; border-left: 1.5px solid #d7dde6; visibility: visible;',
         p: 'margin: 0; visibility: visible;',
-        span: 'visibility: visible; font-size: 14px; line-height: 1.8; color: #333333;',
+        span: 'visibility: visible; font-size: 13px; line-height: 1.85; color: #666666; letter-spacing: 0.6px; font-family: Optima-Regular, PingFangTC-light;',
       },
       warning_soft: {
-        section:
-          'margin: 16px 0; padding: 12px 14px; background: #fff7eb; border-left: 3px solid #d48806; visibility: visible;',
+        section: 'margin: 10px 8px 22px 8px; padding-left: 10px; border-left: 1.5px solid #d7dde6; visibility: visible;',
         p: 'margin: 0; visibility: visible;',
-        span: 'visibility: visible; font-size: 14px; line-height: 1.8; color: #5c3b00;',
+        span: 'visibility: visible; font-size: 13px; line-height: 1.85; color: #666666; letter-spacing: 0.6px; font-family: Optima-Regular, PingFangTC-light;',
       },
     },
     quote: {
-      highlight_quote: {
-        section:
-          'margin: 18px 0; padding: 12px 14px; background: #fafafa; border-left: 3px solid #bdbdbd; visibility: visible;',
-        p: 'margin: 0; visibility: visible;',
-        span: 'visibility: visible; font-size: 15px; line-height: 1.85; color: #444444; font-style: italic;',
-      },
       data_point: {
-        section:
-          'margin: 18px 0; padding: 14px 16px; background: #f5f7ff; border: 1px solid #d6defa; visibility: visible;',
+        section: 'margin: 18px 8px; padding: 10px 0; border-top: 1px solid #ececec; border-bottom: 1px solid #ececec; visibility: visible;',
         p: 'margin: 0; visibility: visible;',
-        span: 'visibility: visible; font-size: 15px; line-height: 1.85; color: #223a70; font-weight: 600;',
+        span: 'visibility: visible; font-size: 15px; line-height: 1.75; color: rgba(0, 0, 0, 0.9); font-weight: 600; letter-spacing: 1px; font-family: Optima-Regular, PingFangTC-light;',
       },
     },
     pseudo_table: {
       compare_grid: {
-        outer: 'margin: 16px 0; border-top: 1px solid #d9d9d9; border-left: 1px solid #d9d9d9; visibility: visible;',
-        headerBg: '#f7f7f7',
+        outer: 'margin: 16px 0; border-top: 1px solid #e3e3e3; border-left: 1px solid #e3e3e3; visibility: visible;',
+        headerBg: '#f8f8f8',
         bodyBg: '#ffffff',
       },
       fact_sheet: {
-        outer: 'margin: 16px 0; border-top: 1px solid #e5e7eb; border-left: 1px solid #e5e7eb; visibility: visible;',
-        headerBg: '#f3f4f6',
-        bodyBg: '#fcfcfd',
+        outer: 'margin: 16px 0; border-top: 1px solid #e6e6e6; border-left: 1px solid #e6e6e6; visibility: visible;',
+        headerBg: '#f7f7f7',
+        bodyBg: '#ffffff',
       },
     },
   };
@@ -89,6 +84,61 @@
     if (tone === 'strong') return `${styleText} color: #111111;`;
     if (tone === 'warm') return `${styleText} color: #5a4331;`;
     return styleText;
+  }
+
+  function normalizeHexColor(value) {
+    const text = String(value || '').trim();
+    if (!text) return '';
+    const fullHex = text.match(/^#([0-9a-fA-F]{6})$/);
+    if (fullHex) return `#${fullHex[1].toLowerCase()}`;
+    const shortHex = text.match(/^#([0-9a-fA-F]{3})$/);
+    if (shortHex) {
+      const [r, g, b] = shortHex[1].split('');
+      return `#${r}${r}${g}${g}${b}${b}`.toLowerCase();
+    }
+    return '';
+  }
+
+  function hexToRgb(hex) {
+    const normalized = normalizeHexColor(hex);
+    if (!normalized) return null;
+    return {
+      r: parseInt(normalized.slice(1, 3), 16),
+      g: parseInt(normalized.slice(3, 5), 16),
+      b: parseInt(normalized.slice(5, 7), 16),
+    };
+  }
+
+  function mixHexWithWhite(hex, ratio = 0.5) {
+    const rgb = hexToRgb(hex);
+    if (!rgb) return '';
+    const safeRatio = Math.max(0, Math.min(1, ratio));
+    const mix = (value) => Math.round(value * (1 - safeRatio) + 255 * safeRatio);
+    return `rgb(${mix(rgb.r)}, ${mix(rgb.g)}, ${mix(rgb.b)})`;
+  }
+
+  function getThemeConfig(payload) {
+    const accentColor = normalizeHexColor(payload?.theme?.accent_color) || '#6c7b95';
+    return {
+      accentColor,
+      accentLight: mixHexWithWhite(accentColor, 0.48) || '#d7dde6',
+    };
+  }
+
+  function validatePayload(payload) {
+    if (!payload || typeof payload !== 'object') throw new Error('payload 格式无效');
+    if (!Array.isArray(payload.title_candidates) || payload.title_candidates.length !== 3) {
+      throw new Error('新版协议要求 title_candidates 必须提供 3 个标题');
+    }
+    if (!String(payload.summary || '').trim()) {
+      throw new Error('新版协议要求必须提供 summary');
+    }
+    if (!payload.theme || !normalizeHexColor(payload.theme.accent_color)) {
+      throw new Error('新版协议要求必须提供 theme.accent_color');
+    }
+    if (!Array.isArray(payload.blocks)) {
+      throw new Error('新版协议要求 blocks 必须是数组');
+    }
   }
 
   function getTitleEditor() {
@@ -452,7 +502,26 @@
     return span;
   }
 
-  function createParagraph(block) {
+  function normalizeSegmentMarks(segment) {
+    const marks = Array.isArray(segment?.marks) ? segment.marks : [];
+    return marks
+      .map((mark) => String(mark || '').trim())
+      .filter(Boolean);
+  }
+
+  function getSegmentStyle(baseStyle, marks, renderContext) {
+    let style = baseStyle;
+    if (marks.includes('bold')) style += ' font-weight: 700;';
+    if (marks.includes('underline')) {
+      style += ' text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px;';
+    }
+    if (marks.includes('accent')) {
+      style += ` color: ${renderContext.theme.accentColor};`;
+    }
+    return style;
+  }
+
+  function createParagraph(block, renderContext) {
     const variant = block.variant || 'body';
     const style = getVariantStyle('paragraph', variant, 'body');
     const section = document.createElement('section');
@@ -460,14 +529,56 @@
     const p = document.createElement('p');
     p.setAttribute('style', style.p);
     let spanStyle = applyTone(applyEmphasis(style.span, block.emphasis), block.tone);
-    p.appendChild(createLeafSpan(block.text, spanStyle));
+    const segments = Array.isArray(block.segments) ? block.segments : [];
+    if (segments.length) {
+      segments.forEach((segment) => {
+        const text = String(segment?.text || '');
+        if (!text) return;
+        const marks = normalizeSegmentMarks(segment);
+        p.appendChild(createLeafSpan(text, getSegmentStyle(spanStyle, marks, renderContext)));
+      });
+    } else {
+      p.appendChild(createLeafSpan(block.text, spanStyle));
+    }
     section.appendChild(p);
     return section;
   }
 
-  function createHeading(block) {
+  function createHeading(block, renderContext) {
     const variant = block.variant || 'section_title';
     const style = getVariantStyle('heading', variant, 'section_title');
+    if (variant === 'section_title_strong') {
+      renderContext.strongHeadingIndex += 1;
+      const fragment = document.createDocumentFragment();
+
+      const badgeSection = document.createElement('section');
+      badgeSection.setAttribute('style', style.badgeSection);
+      const badgeP = document.createElement('p');
+      badgeP.setAttribute('style', 'margin: 0; visibility: visible;');
+      const badgeSpan = document.createElement('span');
+      badgeSpan.setAttribute(
+        'style',
+        `${style.badgeSpan} color: ${renderContext.theme.accentColor};`,
+      );
+      badgeSpan.textContent = block.badge || `Part ${String(renderContext.strongHeadingIndex).padStart(2, '0')}`;
+      badgeP.appendChild(badgeSpan);
+      badgeSection.appendChild(badgeP);
+
+      const titleSection = document.createElement('section');
+      titleSection.setAttribute('style', style.titleSection);
+      const titleP = document.createElement('p');
+      titleP.setAttribute('style', 'margin: 0; visibility: visible;');
+      const titleSpan = document.createElement('span');
+      titleSpan.setAttribute('style', applyTone(applyEmphasis(style.titleSpan, block.emphasis), block.tone));
+      titleSpan.textContent = block.text || '';
+      titleP.appendChild(titleSpan);
+      titleSection.appendChild(titleP);
+
+      fragment.appendChild(badgeSection);
+      fragment.appendChild(titleSection);
+      return fragment;
+    }
+
     const section = document.createElement('section');
     section.setAttribute('style', style.section);
     const p = document.createElement('p');
@@ -480,21 +591,30 @@
     return section;
   }
 
-  function createNote(block) {
+  function createNote(block, renderContext) {
     const variant = block.variant || 'insight_box';
     const style = getVariantStyle('note', variant, 'insight_box');
     const section = document.createElement('section');
-    section.setAttribute('style', style.section);
+    const borderColor = variant === 'warning_soft' ? renderContext.theme.accentLight : '#d7dde6';
+    section.setAttribute('style', `${style.section} border-left-color: ${borderColor};`);
     const p = document.createElement('p');
     p.setAttribute('style', style.p);
-    p.appendChild(createLeafSpan(block.text, applyTone(applyEmphasis(style.span, block.emphasis), block.tone)));
+    const prefix = document.createElement('span');
+    prefix.setAttribute(
+      'style',
+      `visibility: visible; color: ${renderContext.theme.accentColor}; font-weight: 600;`,
+    );
+    prefix.textContent = variant === 'warning_soft' ? '提醒：' : '补充：';
+    p.appendChild(prefix);
+    p.appendChild(
+      createLeafSpan(` ${block.text || ''}`, applyTone(applyEmphasis(style.span, block.emphasis), block.tone)),
+    );
     section.appendChild(p);
     return section;
   }
 
   function createQuote(block) {
-    const variant = block.variant || 'highlight_quote';
-    const style = getVariantStyle('quote', variant, 'highlight_quote');
+    const style = getVariantStyle('quote', 'data_point', 'data_point');
     const section = document.createElement('section');
     section.setAttribute('style', style.section);
     const p = document.createElement('p');
@@ -540,7 +660,7 @@
     contentP.appendChild(
       createLeafSpan(
         itemText,
-        'visibility: visible; color:#2c2c2c; font-size:15px; line-height:1.8;',
+        'visibility: visible; color:rgba(0, 0, 0, 0.9); font-size:15px; line-height:1.75; letter-spacing:1px; font-family: Optima-Regular, PingFangTC-light;',
       ),
     );
     content.appendChild(contentP);
@@ -679,12 +799,12 @@
     return block && block.type === 'image' && !!block.image_url;
   }
 
-  function renderBlock(block) {
+  function renderBlock(block, renderContext) {
     switch (block.type) {
       case 'heading':
-        return createHeading(block);
+        return createHeading(block, renderContext);
       case 'note':
-        return createNote(block);
+        return createNote(block, renderContext);
       case 'quote':
         return createQuote(block);
       case 'bullet_list':
@@ -695,7 +815,7 @@
         return createPseudoTable(block);
       case 'paragraph':
       default:
-        return createParagraph(block);
+        return createParagraph(block, renderContext);
     }
   }
 
@@ -821,7 +941,7 @@
     return uploadImageFile(file);
   }
 
-  async function insertBlocks(blocks, replace = true, includeImages = true) {
+  async function insertBlocks(blocks, replace = true, includeImages = true, themeConfig = null) {
     const editor = getContentEditor();
     if (!editor) throw new Error('未找到正文编辑器');
     if (replace) clearContentEditor();
@@ -829,6 +949,10 @@
       removeUploadAnchors();
     }
 
+    const renderContext = {
+      theme: themeConfig || getThemeConfig({}),
+      strongHeadingIndex: 0,
+    };
     const imageResults = [];
     for (let index = 0; index < (blocks || []).length; index += 1) {
       const block = blocks[index];
@@ -870,7 +994,7 @@
         continue;
       }
 
-      editor.appendChild(renderBlock(block));
+      editor.appendChild(renderBlock(block, renderContext));
       editor.dispatchEvent(new Event('input', { bubbles: true }));
       editor.dispatchEvent(new Event('change', { bubbles: true }));
     }
@@ -885,6 +1009,7 @@
 
   async function insertPayload(payload, options = {}) {
     if (!isWechatEditor()) throw new Error('当前页面不是公众号编辑页，或编辑器尚未加载完成');
+    validatePayload(payload);
     const includeTitle = options.includeTitle !== false;
     const includeAuthor = options.includeAuthor !== false;
     const includeSummary = options.includeSummary !== false;
@@ -894,7 +1019,9 @@
     const replaceBody = options.replaceBody !== false;
 
     if (includeTitle) {
-      const title = Array.isArray(payload?.title_candidates) ? payload.title_candidates[0] : '';
+      const title =
+        String(payload?.selected_title || '').trim() ||
+        (Array.isArray(payload?.title_candidates) ? String(payload.title_candidates[0] || '') : '');
       setProseMirrorText(getTitleEditor(), title || '');
     }
 
@@ -910,7 +1037,12 @@
 
     let imageResults = [];
     if (includeBody) {
-      imageResults = await insertBlocks(payload?.blocks || [], replaceBody, includeImages);
+      imageResults = await insertBlocks(
+        payload?.blocks || [],
+        replaceBody,
+        includeImages,
+        getThemeConfig(payload),
+      );
     } else if (includeImages) {
       throw new Error('新版协议要求正文图片必须作为 image block 存在于 blocks 中');
     }
@@ -929,7 +1061,11 @@
 
     return {
       success: true,
-      title: includeTitle ? (payload?.title_candidates?.[0] || '') : null,
+      title:
+        includeTitle
+          ? String(payload?.selected_title || '').trim() ||
+            (Array.isArray(payload?.title_candidates) ? String(payload.title_candidates[0] || '') : '')
+          : null,
       authorResult,
       summaryResult,
       blockCount: Array.isArray(payload?.blocks) ? payload.blocks.length : 0,
