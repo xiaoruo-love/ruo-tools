@@ -1,58 +1,58 @@
 (function () {
-  const BRIDGE_VERSION = '2026-07-02-v2';
+  const BRIDGE_VERSION = '2026-07-02-v3';
   if (window.__ruoruoWechatPublisher__?.version === BRIDGE_VERSION) return;
+  const RICH_TEXT_FONT =
+    'font-family: Optima-Regular, PingFangTC-light, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;';
 
   const BLOCK_STYLES = {
     paragraph: {
       lead: {
         section: 'margin: 0 8px 24px 8px; visibility: visible;',
         p: 'margin: 0; visibility: visible;',
-        span: 'visibility: visible; font-size: 15px; line-height: 1.75; color: rgba(0, 0, 0, 0.9); letter-spacing: 1px; font-family: Optima-Regular, PingFangTC-light; font-weight: 500;',
+        span: `visibility: visible; font-size: 15px; line-height: 1.75; color: rgba(0, 0, 0, 0.9); letter-spacing: 1px; font-weight: 500; ${RICH_TEXT_FONT}`,
       },
       body: {
         section: 'margin: 0 8px 24px 8px; visibility: visible;',
         p: 'margin: 0; visibility: visible;',
-        span: 'visibility: visible; font-size: 15px; line-height: 1.75; color: rgba(0, 0, 0, 0.9); letter-spacing: 1px; font-family: Optima-Regular, PingFangTC-light;',
+        span: `visibility: visible; font-size: 15px; line-height: 1.75; color: rgba(0, 0, 0, 0.9); letter-spacing: 1px; ${RICH_TEXT_FONT}`,
       },
       analysis: {
         section: 'margin: 0 8px 24px 8px; visibility: visible;',
         p: 'margin: 0; visibility: visible;',
-        span: 'visibility: visible; font-size: 15px; line-height: 1.75; color: rgba(0, 0, 0, 0.9); letter-spacing: 1px; font-family: Optima-Regular, PingFangTC-light;',
+        span: `visibility: visible; font-size: 15px; line-height: 1.75; color: rgba(0, 0, 0, 0.9); letter-spacing: 1px; ${RICH_TEXT_FONT}`,
       },
     },
     heading: {
       section_title: {
         section: 'margin: 24px 8px 10px 8px; visibility: visible;',
         p: 'margin: 0; visibility: visible;',
-        strong: 'font-size: 17px; line-height: 1.75; color: rgba(0, 0, 0, 0.9); font-weight: 600; letter-spacing: 1px; visibility: visible; font-family: Optima-Regular, PingFangTC-light;',
+        strong: `font-size: 17px; line-height: 1.75; color: rgba(0, 0, 0, 0.9); font-weight: 600; letter-spacing: 1px; visibility: visible; ${RICH_TEXT_FONT}`,
       },
       section_title_strong: {
         badgeSection:
           'margin: 22px 8px 6px 8px; text-align: left; line-height: 1.4; visibility: visible;',
-        badgeSpan:
-          'display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; visibility: visible; font-family: Optima-Regular, PingFangTC-light;',
+        badgeSpan: `display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; visibility: visible; ${RICH_TEXT_FONT}`,
         titleSection: 'margin: 0 8px 22px 8px; text-align: left; line-height: 1.6; visibility: visible;',
-        titleSpan:
-          'font-size: 19px; font-weight: 700; color: rgba(0, 0, 0, 0.9); letter-spacing: 1px; visibility: visible; font-family: Optima-Regular, PingFangTC-light;',
+        titleSpan: `font-size: 19px; font-weight: 700; color: rgba(0, 0, 0, 0.9); letter-spacing: 1px; visibility: visible; ${RICH_TEXT_FONT}`,
       },
     },
     note: {
       insight_box: {
         section: 'margin: 10px 8px 22px 8px; padding-left: 10px; border-left: 1.5px solid #d7dde6; visibility: visible;',
         p: 'margin: 0; visibility: visible;',
-        span: 'visibility: visible; font-size: 13px; line-height: 1.85; color: #666666; letter-spacing: 0.6px; font-family: Optima-Regular, PingFangTC-light;',
+        span: `visibility: visible; font-size: 13px; line-height: 1.85; color: #666666; letter-spacing: 0.6px; ${RICH_TEXT_FONT}`,
       },
       warning_soft: {
         section: 'margin: 10px 8px 22px 8px; padding-left: 10px; border-left: 1.5px solid #d7dde6; visibility: visible;',
         p: 'margin: 0; visibility: visible;',
-        span: 'visibility: visible; font-size: 13px; line-height: 1.85; color: #666666; letter-spacing: 0.6px; font-family: Optima-Regular, PingFangTC-light;',
+        span: `visibility: visible; font-size: 13px; line-height: 1.85; color: #666666; letter-spacing: 0.6px; ${RICH_TEXT_FONT}`,
       },
     },
     quote: {
       data_point: {
         section: 'margin: 18px 8px; padding: 10px 0; border-top: 1px solid #ececec; border-bottom: 1px solid #ececec; visibility: visible;',
         p: 'margin: 0; visibility: visible;',
-        span: 'visibility: visible; font-size: 15px; line-height: 1.75; color: rgba(0, 0, 0, 0.9); font-weight: 600; letter-spacing: 1px; font-family: Optima-Regular, PingFangTC-light;',
+        span: `visibility: visible; font-size: 15px; line-height: 1.75; color: rgba(0, 0, 0, 0.9); font-weight: 600; letter-spacing: 1px; ${RICH_TEXT_FONT}`,
       },
     },
     pseudo_table: {
@@ -340,6 +340,13 @@
     editor.replaceChildren();
     editor.dispatchEvent(new Event('input', { bubbles: true }));
     editor.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
+  function applyEditorTypography() {
+    const editor = getContentEditor();
+    if (!editor) throw new Error('未找到正文编辑器');
+    editor.style.fontFamily =
+      'Optima-Regular, PingFangTC-light, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif';
   }
 
   function moveCursorToContentEnd() {
@@ -648,7 +655,7 @@
     prefixP.appendChild(
       createLeafSpan(
         prefixText,
-        'visibility: visible; color:#7a7a7a; font-size:14px; line-height:1.8; font-weight:700;',
+        `visibility: visible; color:#7a7a7a; font-size:14px; line-height:1.8; font-weight:700; ${RICH_TEXT_FONT}`,
       ),
     );
     prefix.appendChild(prefixP);
@@ -663,7 +670,7 @@
     contentP.appendChild(
       createLeafSpan(
         itemText,
-        'visibility: visible; color:rgba(0, 0, 0, 0.9); font-size:15px; line-height:1.75; letter-spacing:1px; font-family: Optima-Regular, PingFangTC-light;',
+        `visibility: visible; color:rgba(0, 0, 0, 0.9); font-size:15px; line-height:1.75; letter-spacing:1px; ${RICH_TEXT_FONT}`,
       ),
     );
     content.appendChild(contentP);
@@ -698,7 +705,7 @@
     prefixP.appendChild(
       createLeafSpan(
         prefixText,
-        `visibility: visible; color:${renderContext.theme.accentColor}; font-size:21px; line-height:1.1; font-weight:700; letter-spacing:0.02em; font-family: Optima-Regular, PingFangTC-light;`,
+        `visibility: visible; color:${renderContext.theme.accentColor}; font-size:21px; line-height:1.1; font-weight:700; letter-spacing:0.02em; ${RICH_TEXT_FONT}`,
       ),
     );
     prefix.appendChild(prefixP);
@@ -713,7 +720,7 @@
     contentP.appendChild(
       createLeafSpan(
         itemText,
-        'visibility: visible; color:rgba(0, 0, 0, 0.9); font-size:15px; line-height:1.75; letter-spacing:1px; font-family: Optima-Regular, PingFangTC-light;',
+        `visibility: visible; color:rgba(0, 0, 0, 0.9); font-size:15px; line-height:1.75; letter-spacing:1px; ${RICH_TEXT_FONT}`,
       ),
     );
     content.appendChild(contentP);
@@ -842,8 +849,8 @@
           createLeafSpan(
             String(cellText ?? ''),
             rowIndex === 0
-              ? 'visibility: visible; color:#333333; font-size:14px; line-height:1.7; font-weight:600;'
-              : 'visibility: visible; color:#333333; font-size:14px; line-height:1.7;',
+              ? `visibility: visible; color:#333333; font-size:14px; line-height:1.7; font-weight:600; ${RICH_TEXT_FONT}`
+              : `visibility: visible; color:#333333; font-size:14px; line-height:1.7; ${RICH_TEXT_FONT}`,
           ),
         );
         cell.appendChild(p);
@@ -1013,6 +1020,7 @@
   async function insertBlocks(blocks, replace = true, includeImages = true, themeConfig = null) {
     const editor = getContentEditor();
     if (!editor) throw new Error('未找到正文编辑器');
+    applyEditorTypography();
     if (replace) clearContentEditor();
     else {
       removeUploadAnchors();
