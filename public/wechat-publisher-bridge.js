@@ -633,12 +633,15 @@
         : 'margin: 10px 0 0 0; visibility: visible;',
     );
     const row = document.createElement('section');
-    row.setAttribute('style', 'font-size:0; visibility:visible;');
+    row.setAttribute(
+      'style',
+      'display:table; width:100%; table-layout:fixed; border-collapse:collapse; visibility:visible;',
+    );
 
     const prefix = document.createElement('section');
     prefix.setAttribute(
       'style',
-      'display:inline-block; width:18px; vertical-align:top; visibility:visible;',
+      'display:table-cell; width:18px; vertical-align:top; visibility:visible;',
     );
     const prefixP = document.createElement('p');
     prefixP.setAttribute('style', 'margin:0; visibility:visible;');
@@ -653,7 +656,7 @@
     const content = document.createElement('section');
     content.setAttribute(
       'style',
-      'display:inline-block; width:calc(100% - 18px); vertical-align:top; visibility:visible;',
+      'display:table-cell; vertical-align:top; visibility:visible; word-break:break-word;',
     );
     const contentP = document.createElement('p');
     contentP.setAttribute('style', 'margin:0; visibility:visible;');
@@ -808,7 +811,16 @@
       case 'quote':
         return createQuote(block);
       case 'bullet_list':
-        return createBulletList(block);
+        return createParagraph(
+          {
+            type: 'paragraph',
+            variant: 'body',
+            text: Array.isArray(block?.items)
+              ? block.items.map((item) => `- ${String(item ?? '')}`).join('\n')
+              : '',
+          },
+          renderContext,
+        );
       case 'numbered_list':
         return createNumberedList(block);
       case 'pseudo_table':

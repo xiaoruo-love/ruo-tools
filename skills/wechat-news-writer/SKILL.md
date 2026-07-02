@@ -191,7 +191,6 @@ description: 根据用户提供的主题、核心信息和写作目标，产出�
 - `paragraph`
 - `note`
 - `quote`
-- `bullet_list`
 - `numbered_list`
 - `pseudo_table`
 - `image`
@@ -342,25 +341,9 @@ description: 根据用户提供的主题、核心信息和写作目标，产出�
 { "type": "quote", "text": "微信及 WeChat 合并月活跃账户已达 14.32 亿。", "variant": "data_point" }
 ```
 
-### 5. `bullet_list`
+### 5. `numbered_list`
 
-只适合并列信息、规则拆解、结论归纳。每一项都应是同一层级的信息，不要一边写事实、一边写态度、一边写结论。
-
-```json
-{
-  "type": "bullet_list",
-  "variant": "key_points",
-  "items": [
-    "单方面删除好友，历史互动通常保留。",
-    "双方互删后，对方痕迹才会消失。",
-    "重新加回好友后，互动仍可能恢复。"
-  ]
-}
-```
-
-### 6. `numbered_list`
-
-适合步骤、排序、递进逻辑、分点说明。
+适合适合并列信息、规则拆解、结论归纳、步骤、排序、递进逻辑、分点说明。
 
 ```json
 {
@@ -374,7 +357,7 @@ description: 根据用户提供的主题、核心信息和写作目标，产出�
 }
 ```
 
-### 7. `pseudo_table`
+### 6. `pseudo_table`
 
 只在确实需要信息对比时使用，绝不要退回原生 `table`。
 
@@ -390,7 +373,7 @@ description: 根据用户提供的主题、核心信息和写作目标，产出�
 }
 ```
 
-### 8. `image`
+### 7. `image`
 
 正文图片不再默认放在 `image_suggestions` 里事后处理。  
 如果图片需要进入正文，请直接把图片作为一个 block 放进 `blocks` 数组中，用它的位置表达“应该插在第几段之后”。
@@ -419,7 +402,7 @@ description: 根据用户提供的主题、核心信息和写作目标，产出�
 - `variant`: 样式变体名，建议填写
 - `text`: 用于 `heading/paragraph/note/quote`
 - `segments`: 仅 `paragraph` 常用；有 `segments` 时，优先按 `segments` 渲染
-- `items`: 仅 `bullet_list/numbered_list`
+- `items`: 仅 `numbered_list`
 - `columns`、`rows`: 仅 `pseudo_table`
 - `query`: 仅 `image` 常用，记录搜索关键词
 - `image_url`: `image` 必填，正文图片网络直链
@@ -513,15 +496,10 @@ description: 根据用户提供的主题、核心信息和写作目标，产出�
 - `data_point`
   `quote` 默认只用这个变体，适合把一句关键数字、关键事实或判断单独提出来
 
-### `bullet_list` 可用变体
-
-- `key_points`
-  `bullet_list` 默认只用这个变体，适合并列重点、规则拆解、结论归纳
-
 ### `numbered_list` 可用变体
 
 - `steps`
-  `numbered_list` 默认只用这个变体，适合步骤、顺序和递进结构
+  `numbered_list` 默认只用这个变体，适合并列信息、规则拆解、结论归纳、步骤、顺序和递进结构
 
 ### `pseudo_table` 可用变体
 
@@ -548,7 +526,7 @@ description: 根据用户提供的主题、核心信息和写作目标，产出�
 - 同一篇文章里，变体数量尽量克制，通常 3 到 5 种就够
 - `note` 在同一篇文章中通常控制在 0 到 2 个，且不要连续出现两个 `note`
 - `quote` 在同一篇文章中通常控制在 0 到 2 个
-- `bullet_list` 和 `numbered_list` 不要混成“半正文半列表”，能写成普通段落时优先写段落
+- `numbered_list` 不要写成“半正文半列表”，能写成普通段落时优先写段落
 - 能并回正文解释的内容，优先并回正文；`note` 只留给真正值得单拎出来的边界信息
 
 ## 输出顺序建议
