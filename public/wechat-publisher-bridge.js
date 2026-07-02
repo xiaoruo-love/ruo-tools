@@ -674,6 +674,56 @@
     return section;
   }
 
+  function createNumberedListItem(prefixText, itemText, itemIndex, renderContext) {
+    const section = document.createElement('section');
+    section.setAttribute(
+      'style',
+      itemIndex === 0
+        ? 'margin: 0 0 14px 0; visibility: visible;'
+        : 'margin: 14px 0 0 0; visibility: visible;',
+    );
+    const row = document.createElement('section');
+    row.setAttribute(
+      'style',
+      'display:table; width:100%; table-layout:fixed; border-collapse:collapse; visibility:visible;',
+    );
+
+    const prefix = document.createElement('section');
+    prefix.setAttribute(
+      'style',
+      'display:table-cell; width:20px; vertical-align:top; visibility:visible;',
+    );
+    const prefixP = document.createElement('p');
+    prefixP.setAttribute('style', 'margin:0; visibility:visible;');
+    prefixP.appendChild(
+      createLeafSpan(
+        prefixText,
+        `visibility: visible; color:${renderContext.theme.accentColor}; font-size:21px; line-height:1.1; font-weight:700; letter-spacing:0.02em; font-family: Optima-Regular, PingFangTC-light;`,
+      ),
+    );
+    prefix.appendChild(prefixP);
+
+    const content = document.createElement('section');
+    content.setAttribute(
+      'style',
+      'display:table-cell; vertical-align:top; visibility:visible; word-break:break-word;',
+    );
+    const contentP = document.createElement('p');
+    contentP.setAttribute('style', 'margin:0; visibility:visible;');
+    contentP.appendChild(
+      createLeafSpan(
+        itemText,
+        'visibility: visible; color:rgba(0, 0, 0, 0.9); font-size:15px; line-height:1.75; letter-spacing:1px; font-family: Optima-Regular, PingFangTC-light;',
+      ),
+    );
+    content.appendChild(contentP);
+
+    row.appendChild(prefix);
+    row.appendChild(content);
+    section.appendChild(row);
+    return section;
+  }
+
   function createBulletList(block) {
     const outer = document.createElement('section');
     outer.setAttribute('style', 'margin: 16px 0; visibility: visible;');
@@ -684,12 +734,19 @@
     return outer;
   }
 
-  function createNumberedList(block) {
+  function createNumberedList(block, renderContext) {
     const outer = document.createElement('section');
     outer.setAttribute('style', 'margin: 16px 0; visibility: visible;');
     const items = Array.isArray(block.items) ? block.items : [];
     items.forEach((itemText, itemIndex) => {
-      outer.appendChild(createListItem(String(itemIndex + 1), String(itemText ?? ''), itemIndex));
+      outer.appendChild(
+        createNumberedListItem(
+          String(itemIndex + 1),
+          String(itemText ?? ''),
+          itemIndex,
+          renderContext,
+        ),
+      );
     });
     return outer;
   }
@@ -822,7 +879,7 @@
           renderContext,
         );
       case 'numbered_list':
-        return createNumberedList(block);
+        return createNumberedList(block, renderContext);
       case 'pseudo_table':
         return createPseudoTable(block);
       case 'paragraph':
