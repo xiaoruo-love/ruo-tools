@@ -31,6 +31,16 @@ export const featureRegistry: FeatureDefinition[] = [
     matches: [],
     enabledByDefault: true,
   },
+  {
+    id: 'toutiao-publisher',
+    name: '头条姬',
+    description: '把结构化文章 JSON 直接插入当前今日头条编辑页，仅支持头条原生 block：heading、paragraph、blockquote、列表、divider、table 和 image。',
+    category: 'productivity',
+    version: '1.0.0',
+    type: 'popup-only',
+    matches: [],
+    enabledByDefault: true,
+  },
 ];
 
 export function getFeatureDefinition(featureId: string): FeatureDefinition | undefined {
