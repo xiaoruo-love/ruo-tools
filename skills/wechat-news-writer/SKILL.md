@@ -88,7 +88,7 @@ description: 根据用户提供的主题、核心信息和写作目标，产出�
   "title_candidates": ["标题1", "标题2", "标题3"],
   "summary": "120个字符以内（含标点）的摘要",
   "theme": {
-    "accent_color": "#b08562",
+    "accent_color": "#6c7b95",
     "accent_name": "克制金棕",
     "reason": "这是一篇科技/规则解读稿，适合偏克制、稳定的强调色"
   },
@@ -105,7 +105,8 @@ description: 根据用户提供的主题、核心信息和写作目标，产出�
 - `writing_style` 必须是 `news` 或 `mass_family`
 - `title_candidates` 必须正好提供 `3` 个标题
 - `summary` 必须控制在 `120` 个字符以内，含标点
-- `theme.accent_color` 必须是十六进制颜色，例如 `#b08562`
+- `theme.accent_color` 必须是十六进制颜色
+- 当 `writing_style = mass_family` 时，`theme.accent_color` 必须固定为 `#c14851`
 - 正文中默认至少包含 `1` 到 `2` 个 `image` block，除非用户明确要求纯文字稿
 
 ## 风格文件职责

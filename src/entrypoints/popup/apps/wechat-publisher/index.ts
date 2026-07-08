@@ -2,6 +2,7 @@ import type { PopupApp } from '../types';
 import './style.css';
 
 interface WechatArticlePayload {
+  writing_style?: 'news' | 'mass_family';
   title_candidates?: string[];
   selected_title?: string;
   author?: string;
@@ -25,6 +26,10 @@ interface WechatArticlePayload {
 
 const STORAGE_KEY = 'ruo-tools:wechat-publisher-payload';
 
+function normalizeWritingStyle(style: unknown): 'news' | 'mass_family' {
+  return String(style || '').trim() === 'mass_family' ? 'mass_family' : 'news';
+}
+
 async function getActiveTabId(): Promise<number> {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab?.id) throw new Error('没有找到当前标签页');
@@ -32,19 +37,37 @@ async function getActiveTabId(): Promise<number> {
   return tab.id;
 }
 
-async function injectBridge(tabId: number): Promise<void> {
+function getBridgeScriptFile(writingStyle: 'news' | 'mass_family'): string {
+  return writingStyle === 'mass_family'
+    ? 'wechat-publisher-mass-family-bridge.js'
+    : 'wechat-publisher-news-bridge.js';
+}
+
+function getBridgeGlobalName(writingStyle: 'news' | 'mass_family'): string {
+  return writingStyle === 'mass_family'
+    ? '__ruoruoWechatPublisherMassFamily__'
+    : '__ruoruoWechatPublisherNews__';
+}
+
+async function injectBridge(tabId: number, writingStyle: 'news' | 'mass_family'): Promise<void> {
   await chrome.scripting.executeScript({
     target: { tabId },
-    files: ['wechat-publisher-bridge.js'],
+    files: [getBridgeScriptFile(writingStyle)],
     world: 'MAIN',
   });
 }
 
-async function callBridge<T>(tabId: number, method: string, ...args: unknown[]): Promise<T> {
+async function callBridge<T>(
+  tabId: number,
+  writingStyle: 'news' | 'mass_family',
+  method: string,
+  ...args: unknown[]
+): Promise<T> {
+  const bridgeGlobalName = getBridgeGlobalName(writingStyle);
   const results = await chrome.scripting.executeScript({
     target: { tabId },
-    func: (m: string, a: unknown[]) => {
-      const bridge = (window as any).__ruoruoWechatPublisher__;
+    func: (globalName: string, m: string, a: unknown[]) => {
+      const bridge = (window as any)[globalName];
       if (!bridge || typeof bridge[m] !== 'function') {
         return { ok: false, error: '桥接脚本未就绪' };
       }
@@ -66,7 +89,7 @@ async function callBridge<T>(tabId: number, method: string, ...args: unknown[]):
         };
       }
     },
-    args: [method, args],
+    args: [bridgeGlobalName, method, args],
     world: 'MAIN',
   });
   const [res] = results ?? [];
@@ -81,6 +104,7 @@ async function callBridge<T>(tabId: number, method: string, ...args: unknown[]):
 function parsePayload(raw: string): WechatArticlePayload {
   const parsed = JSON.parse(raw) as WechatArticlePayload;
   if (!parsed || typeof parsed !== 'object') throw new Error('JSON 结构无效');
+  parsed.writing_style = normalizeWritingStyle(parsed.writing_style);
   if (!Array.isArray(parsed.title_candidates) || parsed.title_candidates.length !== 3) {
     throw new Error('title_candidates 必须正好提供 3 个标题');
   }
@@ -135,7 +159,7 @@ function summarizePayload(payload: WechatArticlePayload): string {
   const images = Array.isArray(payload.blocks)
     ? payload.blocks.filter((item) => item && item.type === 'image' && item.image_url).length
     : 0;
-  return `标题候选 ${titleCount} 个 · 正文块 ${blocks} 个 · 正文图片 ${images} 张`;
+  return `${normalizeWritingStyle(payload.writing_style)} · 标题候选 ${titleCount} 个 · 正文块 ${blocks} 个 · 正文图片 ${images} 张`;
 }
 
 const wechatPublisherApp: PopupApp = {
@@ -276,9 +300,9 @@ const wechatPublisherApp: PopupApp = {
       pendingPayload = null;
     }
 
-    async function ensureWechatEditor(tabId: number) {
-      await injectBridge(tabId);
-      const ok = await callBridge<boolean>(tabId, 'isWechatEditor');
+    async function ensureWechatEditor(tabId: number, writingStyle: 'news' | 'mass_family') {
+      await injectBridge(tabId, writingStyle);
+      const ok = await callBridge<boolean>(tabId, writingStyle, 'isWechatEditor');
       if (!ok) throw new Error('当前标签页不是公众号编辑页，或编辑器尚未加载完成');
     }
 
@@ -300,6 +324,7 @@ const wechatPublisherApp: PopupApp = {
           return;
         }
       }
+      const writingStyle = normalizeWritingStyle(payload.writing_style);
 
       setBusy(true);
       setStatus('正在连接当前公众号编辑页...', 'info');
@@ -311,7 +336,7 @@ const wechatPublisherApp: PopupApp = {
           setStatus('正文图片已准备完成，正在连接编辑页...', 'info');
         }
         const tabId = await getActiveTabId();
-        await ensureWechatEditor(tabId);
+        await ensureWechatEditor(tabId, writingStyle);
         setStatus('正在写入编辑器...', 'info');
         const result = await callBridge<{
           success: boolean;
@@ -321,7 +346,7 @@ const wechatPublisherApp: PopupApp = {
           blockCount: number;
           imageResults: Array<{ success: boolean }>;
           saveDraftResult: { success: boolean; error?: string } | null;
-        }>(tabId, 'insertPayload', payload, options);
+        }>(tabId, writingStyle, 'insertPayload', payload, options);
 
         if (!result || typeof result !== 'object') {
           throw new Error('页面脚本未返回有效结果');

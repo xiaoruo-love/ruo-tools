@@ -453,6 +453,70 @@
         font-family: "Optima-Regular", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
       }
 
+      .mass-lead,
+      .mass-body {
+        margin-left: 8px;
+        margin-right: 8px;
+        margin-bottom: 20px;
+        line-height: 1.75em;
+      }
+
+      .mass-lead span,
+      .mass-body span {
+        font-size: 16px;
+        line-height: 1.75em;
+        letter-spacing: 1px;
+        color: rgb(36, 36, 36);
+      }
+
+      .mass-heading {
+        margin: 16px 8px 18px;
+        text-align: center;
+      }
+
+      .mass-heading span {
+        font-size: 18px;
+        line-height: 1.75em;
+        font-weight: 700;
+        letter-spacing: 1px;
+        color: rgb(193, 72, 81);
+      }
+
+      .mass-statement {
+        margin: 18px 8px 20px;
+        text-align: center;
+      }
+
+      .mass-statement span {
+        font-size: 18px;
+        line-height: 1.75em;
+        font-weight: 700;
+        letter-spacing: 1px;
+        color: rgb(193, 72, 81);
+      }
+
+      .mass-note {
+        margin-left: 8px;
+        margin-right: 8px;
+        margin-bottom: 20px;
+      }
+
+      .mass-note p {
+        margin: 0;
+      }
+
+      .mass-note span {
+        font-size: 15px;
+        line-height: 1.75em;
+        letter-spacing: 1px;
+        color: rgb(36, 36, 36);
+      }
+
+      .mass-note .note-prefix {
+        color: rgb(193, 72, 81);
+        font-weight: 600;
+      }
+
       @media (max-width: 980px) {
         .hero,
         .grid {
@@ -474,7 +538,7 @@
           <h1>公众号 Blocks 设计稿预览</h1>
           <p class="hero-desc">
             这个页面按当前
-            <code>wechat-publisher-bridge.js</code>
+            <code>wechat-publisher-news-bridge.js / wechat-publisher-mass-family-bridge.js</code>
             的真实样式映射制作。现在的方向不是“做出组件感”，而是尽量贴近真人会发的公众号正文。它不是新的视觉提案，而是让你快速看到每种
             <code>block</code>
             在最终文章中的落点和层次。
@@ -924,6 +988,91 @@
             </div>
           </div>
         </article>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <h2>Mass Family 专属 Blocks</h2>
+          <p>更接近“父母志”这类中老年/下沉传播型内容的正文组织方式</p>
+        </div>
+
+        <div class="grid">
+          <article class="panel">
+            <header class="panel-head">
+              <h3>Judgement Heading</h3>
+              <p>判断句型小标题，替读者把话说透</p>
+            </header>
+            <div class="preview">
+              <section class="mass-heading">
+                <span>巴结和讨好，换不来真正的人脉</span>
+              </section>
+            </div>
+            <pre class="code">{
+  "type": "heading",
+  "variant": "judgement_heading",
+  "text": "巴结和讨好，换不来真正的人脉"
+}</pre>
+          </article>
+
+          <article class="panel">
+            <header class="panel-head">
+              <h3>Centered Statement</h3>
+              <p>把一句最该停下来的判断单独拎出来</p>
+            </header>
+            <div class="preview">
+              <section class="mass-statement">
+                <span>人脉的本质是价值交换，不是单方面索取。</span>
+              </section>
+            </div>
+            <pre class="code">{
+  "type": "statement",
+  "variant": "centered_statement",
+  "text": "人脉的本质是价值交换，不是单方面索取。"
+}</pre>
+          </article>
+
+          <article class="panel">
+            <header class="panel-head">
+              <h3>Gentle Note</h3>
+              <p>不是风险提示，而是现实提醒</p>
+            </header>
+            <div class="preview">
+              <section class="mass-note">
+                <p><span>孩子离家后，父母真正想要的，很多时候不是汇报制度，而是一句“我到了”。</span></p>
+              </section>
+            </div>
+            <pre class="code">{
+  "type": "note",
+  "variant": "gentle_note",
+  "text": "孩子离家后，父母真正想要的，很多时候不是汇报制度，而是一句“我到了”。"
+}</pre>
+          </article>
+
+          <article class="panel">
+            <header class="panel-head">
+              <h3>Scenario Media</h3>
+              <p>不是证据图，而是生活场景入口</p>
+            </header>
+            <div class="preview">
+              <div class="img-block">
+                <img
+                  alt="family scene preview"
+                  src="https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=1200&q=80"
+                />
+                <div class="img-caption">（图片来源：Unsplash）</div>
+              </div>
+            </div>
+            <pre class="code">{
+  "type": "image",
+  "variant": "scenario_media",
+  "query": "父女 送大学 家庭 场景",
+  "image_url": "https://...",
+  "source_name": "Unsplash",
+  "source_page": "https://...",
+  "reason": "用于承接家庭场景，让读者一眼进入这类人和这类事。"
+}</pre>
+          </article>
+        </div>
       </section>
     </div>
   </body>

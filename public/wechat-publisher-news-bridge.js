@@ -1,8 +1,24 @@
 (function () {
-  const BRIDGE_VERSION = '2026-07-02-v3';
-  if (window.__ruoruoWechatPublisher__?.version === BRIDGE_VERSION) return;
+  const BRIDGE_VERSION = '2026-07-08-news-v1';
+  if (window.__ruoruoWechatPublisherNews__?.version === BRIDGE_VERSION) return;
   const RICH_TEXT_FONT =
     'font-family: Optima-Regular, PingFangTC-light, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;';
+  const WRITING_STYLE_PRESETS = {
+    news: {
+      paragraph: {
+        lead: 'lead',
+        body: 'body',
+        analysis: 'analysis',
+      },
+      heading: {
+        section_title: 'section_title',
+      },
+      note: {
+        insight_box: 'insight_box',
+        warning_soft: 'warning_soft',
+      },
+    },
+  };
 
   const BLOCK_STYLES = {
     paragraph: {
@@ -21,6 +37,16 @@
         p: 'margin: 0; visibility: visible;',
         span: `visibility: visible; font-size: 15px; line-height: 1.75; color: rgba(0, 0, 0, 0.9); letter-spacing: 1px; ${RICH_TEXT_FONT}`,
       },
+      mass_lead: {
+        section: 'margin-left: 8px; margin-right: 8px; margin-bottom: 20px; line-height: 1.75em; visibility: visible;',
+        p: 'margin: 0; visibility: visible;',
+        span: 'visibility: visible; font-size: 16px; line-height: 1.75em; color: rgb(36, 36, 36); letter-spacing: 1px;',
+      },
+      mass_body: {
+        section: 'margin-left: 8px; margin-right: 8px; margin-bottom: 20px; line-height: 1.75em; visibility: visible;',
+        p: 'margin: 0; visibility: visible;',
+        span: 'visibility: visible; font-size: 16px; line-height: 1.75em; color: rgb(36, 36, 36); letter-spacing: 1px;',
+      },
     },
     heading: {
       section_title: {
@@ -35,6 +61,11 @@
         titleSection: 'margin: 0 8px 22px 8px; text-align: left; line-height: 1.6; visibility: visible;',
         titleSpan: `font-size: 19px; font-weight: 700; color: rgba(0, 0, 0, 0.9); letter-spacing: 1px; visibility: visible; ${RICH_TEXT_FONT}`,
       },
+      judgement_heading: {
+        section: 'margin: 16px 8px 18px 8px; text-align: center; visibility: visible;',
+        p: 'margin: 0; visibility: visible;',
+        strong: 'font-size: 18px; line-height: 1.75em; color: rgb(193, 72, 81); font-weight: 700; letter-spacing: 1px; visibility: visible;',
+      },
     },
     note: {
       insight_box: {
@@ -47,12 +78,24 @@
         p: 'margin: 0; visibility: visible;',
         span: `visibility: visible; font-size: 13px; line-height: 1.85; color: #666666; letter-spacing: 0.6px; ${RICH_TEXT_FONT}`,
       },
+      gentle_note: {
+        section: 'margin-left: 8px; margin-right: 8px; margin-bottom: 20px; visibility: visible;',
+        p: 'margin: 0; visibility: visible;',
+        span: 'visibility: visible; font-size: 15px; line-height: 1.75em; color: rgb(36, 36, 36); letter-spacing: 1px;',
+      },
     },
     quote: {
       data_point: {
         section: 'margin: 18px 8px; padding: 10px 0; border-top: 1px solid #ececec; border-bottom: 1px solid #ececec; visibility: visible;',
         p: 'margin: 0; visibility: visible;',
         span: `visibility: visible; font-size: 15px; line-height: 1.75; color: rgba(0, 0, 0, 0.9); font-weight: 600; letter-spacing: 1px; ${RICH_TEXT_FONT}`,
+      },
+    },
+    statement: {
+      centered_statement: {
+        section: 'margin: 18px 8px 20px 8px; text-align: center; visibility: visible;',
+        p: 'margin: 0; visibility: visible;',
+        span: 'visibility: visible; font-size: 18px; line-height: 1.75em; color: rgb(193, 72, 81); font-weight: 700; letter-spacing: 1px;',
       },
     },
     pseudo_table: {
@@ -72,6 +115,19 @@
   function getVariantStyle(type, variant, fallback) {
     const bucket = BLOCK_STYLES[type] || {};
     return bucket[variant] || bucket[fallback];
+  }
+
+  function getWritingStyle(renderContext) {
+    void renderContext;
+    return 'news';
+  }
+
+  function resolveVariant(type, variant, renderContext) {
+    const writingStyle = getWritingStyle(renderContext);
+    const preset = WRITING_STYLE_PRESETS[writingStyle]?.[type];
+    const key = String(variant || '').trim();
+    if (!preset) return key;
+    return preset[key] || key;
   }
 
   function applyEmphasis(styleText, emphasis) {
@@ -118,7 +174,8 @@
   }
 
   function getThemeConfig(payload) {
-    const accentColor = normalizeHexColor(payload?.theme?.accent_color) || '#6c7b95';
+    const defaultAccent = '#6c7b95';
+    const accentColor = normalizeHexColor(payload?.theme?.accent_color) || defaultAccent;
     return {
       accentColor,
       accentLight: mixHexWithWhite(accentColor, 0.48) || '#d7dde6',
@@ -127,6 +184,9 @@
 
   function validatePayload(payload) {
     if (!payload || typeof payload !== 'object') throw new Error('payload 格式无效');
+    if (payload.writing_style && String(payload.writing_style).trim() !== 'news') {
+      throw new Error('当前 bridge 仅支持 news 风格');
+    }
     if (!Array.isArray(payload.title_candidates) || payload.title_candidates.length !== 3) {
       throw new Error('新版协议要求 title_candidates 必须提供 3 个标题');
     }
@@ -529,8 +589,9 @@
   }
 
   function createParagraph(block, renderContext) {
-    const variant = block.variant || 'body';
-    const style = getVariantStyle('paragraph', variant, 'body');
+    const variant = resolveVariant('paragraph', block.variant || 'body', renderContext);
+    const fallback = 'body';
+    const style = getVariantStyle('paragraph', variant, fallback);
     const section = document.createElement('section');
     section.setAttribute('style', style.section);
     const p = document.createElement('p');
@@ -552,7 +613,7 @@
   }
 
   function createHeading(block, renderContext) {
-    const variant = block.variant || 'section_title';
+    const variant = resolveVariant('heading', block.variant || 'section_title', renderContext);
     const style = getVariantStyle('heading', variant, 'section_title');
     if (variant === 'section_title_strong') {
       renderContext.strongHeadingIndex += 1;
@@ -599,19 +660,37 @@
   }
 
   function createNote(block, renderContext) {
-    const variant = block.variant || 'insight_box';
-    const style = getVariantStyle('note', variant, 'insight_box');
+    const variant = resolveVariant('note', block.variant || 'insight_box', renderContext);
+    const fallback = 'insight_box';
+    const style = getVariantStyle('note', variant, fallback);
     const section = document.createElement('section');
-    const borderColor = variant === 'warning_soft' ? renderContext.theme.accentLight : '#d7dde6';
-    section.setAttribute('style', `${style.section} border-left-color: ${borderColor};`);
+    const borderColor =
+      variant === 'warning_soft' || variant === 'gentle_note'
+        ? renderContext.theme.accentLight
+        : '#d7dde6';
+    if (variant === 'gentle_note') {
+      section.setAttribute('style', style.section);
+    } else {
+      section.setAttribute('style', `${style.section} border-left-color: ${borderColor};`);
+    }
     const p = document.createElement('p');
     p.setAttribute('style', style.p);
+    if (variant === 'gentle_note') {
+      p.appendChild(
+        createLeafSpan(
+          block.text || '',
+          applyTone(applyEmphasis(style.span, block.emphasis), block.tone),
+        ),
+      );
+      section.appendChild(p);
+      return section;
+    }
     const prefix = document.createElement('span');
     prefix.setAttribute(
       'style',
       `visibility: visible; color: ${renderContext.theme.accentColor}; font-weight: 600;`,
     );
-    prefix.textContent = variant === 'warning_soft' ? '提醒：' : '补充：';
+    prefix.textContent = variant === 'gentle_note' ? '一句提醒：' : variant === 'warning_soft' ? '提醒：' : '补充：';
     p.appendChild(prefix);
     p.appendChild(
       createLeafSpan(` ${block.text || ''}`, applyTone(applyEmphasis(style.span, block.emphasis), block.tone)),
@@ -627,6 +706,22 @@
     const p = document.createElement('p');
     p.setAttribute('style', style.p);
     p.appendChild(createLeafSpan(block.text, applyTone(applyEmphasis(style.span, block.emphasis), block.tone)));
+    section.appendChild(p);
+    return section;
+  }
+
+  function createStatement(block, renderContext) {
+    const style = getVariantStyle('statement', block.variant || 'centered_statement', 'centered_statement');
+    const section = document.createElement('section');
+    section.setAttribute('style', style.section);
+    const p = document.createElement('p');
+    p.setAttribute('style', style.p);
+    p.appendChild(
+      createLeafSpan(
+        block.text,
+        applyTone(applyEmphasis(style.span, block.emphasis), block.tone),
+      ),
+    );
     section.appendChild(p);
     return section;
   }
@@ -872,6 +967,8 @@
         return createHeading(block, renderContext);
       case 'note':
         return createNote(block, renderContext);
+      case 'statement':
+        return createStatement(block, renderContext);
       case 'quote':
         return createQuote(block);
       case 'bullet_list':
@@ -1017,7 +1114,7 @@
     return uploadImageFile(file);
   }
 
-  async function insertBlocks(blocks, replace = true, includeImages = true, themeConfig = null) {
+  async function insertBlocks(blocks, replace = true, includeImages = true, themeConfig = null, writingStyle = 'news') {
     const editor = getContentEditor();
     if (!editor) throw new Error('未找到正文编辑器');
     applyEditorTypography();
@@ -1029,6 +1126,7 @@
     const renderContext = {
       theme: themeConfig || getThemeConfig({}),
       strongHeadingIndex: 0,
+      writingStyle: 'news',
     };
     const imageResults = [];
     for (let index = 0; index < (blocks || []).length; index += 1) {
@@ -1119,6 +1217,7 @@
         replaceBody,
         includeImages,
         getThemeConfig(payload),
+        'news',
       );
     } else if (includeImages) {
       throw new Error('新版协议要求正文图片必须作为 image block 存在于 blocks 中');
@@ -1151,7 +1250,7 @@
     };
   }
 
-  window.__ruoruoWechatPublisher__ = {
+  window.__ruoruoWechatPublisherNews__ = {
     isInstalled: true,
     version: BRIDGE_VERSION,
     isWechatEditor,
