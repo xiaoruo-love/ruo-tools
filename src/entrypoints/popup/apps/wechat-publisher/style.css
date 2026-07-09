@@ -117,6 +117,53 @@
   background: #ffffff;
 }
 
+.wp-theme-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.wp-theme-picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px 6px 6px;
+  border: 1px solid var(--wp-border);
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.wp-theme-picker__input {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.wp-theme-picker__input::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.wp-theme-picker__input::-webkit-color-swatch {
+  border: none;
+  border-radius: 10px;
+}
+
+.wp-theme-picker__input::-moz-color-swatch {
+  border: none;
+  border-radius: 10px;
+}
+
+.wp-theme-picker__value {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--wp-text-1);
+  font-family: var(--font-ui);
+}
+
 .wp-actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

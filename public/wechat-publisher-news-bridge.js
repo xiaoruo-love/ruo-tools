@@ -1,8 +1,8 @@
 (function () {
-  const BRIDGE_VERSION = '2026-07-08-news-v1';
+  const BRIDGE_VERSION = '2026-07-09-news-v7';
   if (window.__ruoruoWechatPublisherNews__?.version === BRIDGE_VERSION) return;
   const NEWS_FONT_FAMILY =
-    '"PingFang SC NEW", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", Arial, sans-serif';
+    'Optima-Regular, PingFangTC-light';
   const RICH_TEXT_FONT = `font-family: ${NEWS_FONT_FAMILY};`;
   const WRITING_STYLE_PRESETS = {
     news: {
@@ -179,6 +179,16 @@
     return {
       accentColor,
       accentLight: mixHexWithWhite(accentColor, 0.48) || '#d7dde6',
+    };
+  }
+
+  function resolveThemeConfig(options = {}) {
+    const defaultTheme = getThemeConfig();
+    const overrideColor = normalizeHexColor(options?.themeAccentColor);
+    const accentColor = overrideColor || defaultTheme.accentColor;
+    return {
+      accentColor,
+      accentLight: mixHexWithWhite(accentColor, 0.48) || defaultTheme.accentLight,
     };
   }
 
@@ -1212,7 +1222,7 @@
         payload?.blocks || [],
         replaceBody,
         includeImages,
-        getThemeConfig(payload),
+        resolveThemeConfig(options),
         'news',
       );
     } else if (includeImages) {

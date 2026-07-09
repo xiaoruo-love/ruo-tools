@@ -1,0 +1,188 @@
+{
+  "title_candidates": [
+    "iPhone 18 Pro 文件外泄后，苹果最紧张的其实是供应链底牌",
+    "新机谍照只是表层，塔塔数据泄露真正刺痛了苹果的“苹果链”",
+    "20万份文件、630GB数据流出：一场泄露把苹果最不想公开的部分掀开了"
+  ],
+  "summary": "塔塔电子数据泄露牵出 iPhone 18 Pro 文件与供应商信息，冲击点不只在新机外观，更在苹果长期严控的供应链保密体系。",
+  "theme": {
+    "accent_color": "#6f7f8f",
+    "accent_name": "冷静灰蓝",
+    "reason": "这篇稿子偏科技产业与风险解读，需要克制、清晰、信息密度高的阅读氛围。"
+  },
+  "blocks": [
+    {
+      "type": "paragraph",
+      "variant": "lead",
+      "segments": [
+        {
+          "text": "这次外泄最抓眼球的，是 "
+        },
+        {
+          "text": "iPhone 18 Pro 的内部图片和元器件文件",
+          "marks": [
+            "accent",
+            "bold"
+          ]
+        },
+        {
+          "text": "。但对苹果来说，更麻烦的并不是新机又被提前看见，而是它多年死守的供应链关系、零部件分工和议价结构，被一并摊到了台面上。"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "variant": "body",
+      "text": "路透社在 2026 年 6 月 29 日的报道中提到，勒索软件团伙 World Leaks 从印度塔塔电子窃取并在暗网发布了超过 20 万份文件、总量超过 630GB 的数据。路透社审阅的部分材料显示，其中包含苹果即将发布机型的部件清单、供应商信息，以及被描述为 iPhone 18 Pro 的内部照片。"
+    },
+    {
+      "type": "image",
+      "variant": "body_image",
+      "query": "Apple Park aerial view",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Aerial_view_of_Apple_Park_dllu.jpg",
+      "source_name": "Wikimedia Commons",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Aerial_view_of_Apple_Park_dllu.jpg",
+      "reason": "放在开篇后，用苹果总部的视觉锚点承接“苹果最在意的不只是新机外泄，而是供应链机密外流”这个判断。"
+    },
+    {
+      "type": "heading",
+      "text": "这次泄露，真正敏感的是什么",
+      "variant": "section_title"
+    },
+    {
+      "type": "bullet_list",
+      "variant": "key_points",
+      "items": [
+        "不是单一产品外观流出，而是零部件、主板、相机、电池等更深层制造信息被关联展示。",
+        "不是单个供应商出问题，而是“谁给苹果供什么、处在什么位置”这类链路信息被看穿。",
+        "不是一次普通爆料，而是带有系统性文档、命名规则和内部标识的批量泄露。"
+      ]
+    },
+    {
+      "type": "paragraph",
+      "variant": "analysis",
+      "segments": [
+        {
+          "text": "苹果一直把供应链视为核心竞争力的一部分。"
+        },
+        {
+          "text": "供应商名单、物料映射关系、测试资料",
+          "marks": [
+            "underline"
+          ]
+        },
+        {
+          "text": "一旦被外部掌握，受影响的就不只是保密工作，还可能波及后续采购谈判、产能调度，甚至给竞争对手和仿冒厂商提供参考坐标。"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "text": "为什么说这比“新机谍照”更严重",
+      "variant": "section_title"
+    },
+    {
+      "type": "paragraph",
+      "variant": "body",
+      "text": "外观泄露对苹果并不陌生，市场往往很快消化，真正难修复的是供应链透明化带来的长期后果。谁是关键零部件提供方，哪些器件被放在高优先级位置，苹果对不同供应商的依赖度如何，这些信息一旦扩散，影响周期通常比一轮新品爆料更长。"
+    },
+    {
+      "type": "quote",
+      "variant": "data_point",
+      "text": "这次被公开的信息量，按路透社口径已超过 20 万份文件、630GB 数据。"
+    },
+    {
+      "type": "paragraph",
+      "variant": "analysis",
+      "segments": [
+        {
+          "text": "时间点也很微妙。"
+        },
+        {
+          "text": "2026 年 6 月下旬",
+          "marks": [
+            "accent"
+          ]
+        },
+        {
+          "text": "，苹果刚因内存和存储芯片成本上涨，上调了部分 MacBook 和 iPad 产品价格。多家媒体援引路透社称，分析师预计未来几个月 iPhone 也面临涨价压力。换句话说，苹果一边要处理成本，一边还要补供应链安全的口子。"
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "variant": "data_image",
+      "query": "cybersecurity data breach illustration",
+      "image_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Cybersecurity.png",
+      "source_name": "Wikimedia Commons",
+      "source_page": "https://commons.wikimedia.org/wiki/File:Cybersecurity.png",
+      "reason": "放在风险分析段之后，帮助读者从“新品泄露”切换到“供应链安全事件”的理解框架。"
+    },
+    {
+      "type": "note",
+      "variant": "warning_soft",
+      "text": "需要区分的是：截至 2026 年 7 月 2 日，公开报道更多是“分析师预期 iPhone 后续可能涨价”，并非苹果已经正式宣布上调 iPhone 售价。"
+    },
+    {
+      "type": "heading",
+      "text": "苹果和塔塔现在在做什么",
+      "variant": "section_title"
+    },
+    {
+      "type": "numbered_list",
+      "variant": "steps",
+      "items": [
+        "苹果已展开调查，并与塔塔电子协同制定中长期补救措施。",
+        "塔塔电子已收紧员工对敏感系统的访问权限，尤其是远程访问相关内部工具的范围。",
+        "塔塔电子还聘请外部国际咨询机构进行法务取证和审计，并向印度政府及客户通报情况。"
+      ]
+    },
+    {
+      "type": "paragraph",
+      "variant": "body",
+      "text": "从处置动作看，苹果和塔塔显然都把这件事当成供应链安全事件，而不是普通 IT 故障。对苹果来说，短期目标是控传播、查范围；中长期更关键的，是重新审视海外制造体系里哪些环节仍然过度依赖合作方的内部安全能力。"
+    },
+    {
+      "type": "heading",
+      "text": "普通读者该关注什么",
+      "variant": "section_title"
+    },
+    {
+      "type": "bullet_list",
+      "variant": "key_points",
+      "items": [
+        "如果你只关心新品，这次泄露说明 iPhone 18 Pro 的部分测试与供应文件已经提前外流，但不代表最终零售版本已被完全确认。",
+        "如果你关心产业链，这次事件暴露出大厂再强，也无法只靠自身安全体系守住全部机密。",
+        "如果你关心价格，未来几个月苹果是否把更高的零部件成本转嫁到 iPhone 上，值得继续跟踪。"
+      ]
+    },
+    {
+      "type": "paragraph",
+      "variant": "analysis",
+      "segments": [
+        {
+          "text": "这件事最值得记住的一点是："
+        },
+        {
+          "text": "苹果被泄露的不只是下一代手机的样子，而是它如何把一部手机组织出来",
+          "marks": [
+            "bold",
+            "accent"
+          ]
+        },
+        {
+          "text": "。这也是为什么，苹果会把这起事件看得比普通爆料更重。"
+        }
+      ]
+    }
+  ],
+  "references": [
+    "Reuters 社交发布摘要：Apple iPhone 18 Pro details, photos exposed in data leak - https://x.com/Reuters/status/2071836130740466114",
+    "The Verge，2026-06-30：Leaked iPhone 18 Pro photos reportedly wound up on the dark web - https://www.theverge.com/tech/959229/iphone-18-pro-leak-apple-dark-web",
+    "Engadget，2026-06-29：Sensitive iPhone supplier details were part of last week's data leak at Tata Electronics - https://www.engadget.com/2204589/sensitive-iphone-supplier-details-were-part-of-last-weeks-data-leak-at-tata-electronics/",
+    "Reuters 转引，2026-06-26：Exclusive-Apple supplier Tata tightens internal controls after data breach - https://wtaq.com/2026/06/26/exclusive-apple-supplier-tata-tightens-internal-controls-after-data-breach-sources-say/",
+    "Reuters 社交发布摘要：Apple hikes prices as memory chip costs skyrocket - https://www.facebook.com/Reuters/videos/apple-hikes-prices-as-memory-chip-costs-skyrocket/1297147975496854/",
+    "Wikimedia Commons：Aerial view of Apple Park dllu.jpg - https://commons.wikimedia.org/wiki/File:Aerial_view_of_Apple_Park_dllu.jpg",
+    "Wikimedia Commons：Cybersecurity.png - https://commons.wikimedia.org/wiki/File:Cybersecurity.png"
+  ]
+}

@@ -20,6 +20,19 @@ interface WechatArticlePayload {
 }
 
 const STORAGE_KEY = 'ruo-tools:wechat-publisher-payload';
+const THEME_STORAGE_KEY = 'ruo-tools:wechat-publisher-news-theme';
+const DEFAULT_NEWS_THEME = '#F85028';
+
+interface InsertOptions {
+  includeTitle: boolean;
+  includeAuthor: boolean;
+  includeSummary: boolean;
+  includeBody: boolean;
+  includeImages: boolean;
+  includeSaveDraft: boolean;
+  replaceBody: boolean;
+  themeAccentColor?: string;
+}
 
 function normalizeWritingStyle(style: unknown): 'news' | 'mass_family' {
   return String(style || '').trim() === 'mass_family' ? 'mass_family' : 'news';
@@ -190,6 +203,14 @@ const wechatPublisherApp: PopupApp = {
             placeholder='请粘贴包含 title_candidates / blocks / cover_image 的新版 JSON；正文图片需作为 image block 放在 blocks 中'
           ></textarea>
 
+          <div class="wp-theme-row">
+            <p class="wp-panel__label">主题色</p>
+            <label class="wp-theme-picker" title="选择 news 文章主题色">
+              <input class="wp-theme-picker__input" data-role="theme-input" type="color" value="${DEFAULT_NEWS_THEME}">
+              <span class="wp-theme-picker__value" data-role="theme-value">${DEFAULT_NEWS_THEME}</span>
+            </label>
+          </div>
+
           <div class="wp-actions">
             <button class="wp-primary-btn" data-action="parse-json" type="button">解析JSON</button>
             <button class="wp-secondary-btn" data-action="attach-meta" type="button">添加附件属性</button>
@@ -221,6 +242,8 @@ const wechatPublisherApp: PopupApp = {
     const textarea = container.querySelector<HTMLTextAreaElement>('[data-role="textarea"]')!;
     const summaryEl = container.querySelector<HTMLElement>('[data-role="summary"]')!;
     const statusEl = container.querySelector<HTMLElement>('[data-role="status"]')!;
+    const themeInput = container.querySelector<HTMLInputElement>('[data-role="theme-input"]')!;
+    const themeValueEl = container.querySelector<HTMLElement>('[data-role="theme-value"]')!;
     const formatBtn = container.querySelector<HTMLButtonElement>('[data-action="format"]')!;
     const parseJsonBtn = container.querySelector<HTMLButtonElement>('[data-action="parse-json"]')!;
     const attachMetaBtn = container.querySelector<HTMLButtonElement>('[data-action="attach-meta"]')!;
@@ -249,6 +272,19 @@ const wechatPublisherApp: PopupApp = {
 
     function persistDraft() {
       localStorage.setItem(STORAGE_KEY, textarea.value);
+    }
+
+    function persistThemeChoice() {
+      localStorage.setItem(THEME_STORAGE_KEY, themeInput.value || DEFAULT_NEWS_THEME);
+    }
+
+    function getSelectedThemeColor(): string {
+      const value = String(themeInput.value || '').trim().toUpperCase();
+      return /^#[0-9A-F]{6}$/.test(value) ? value : DEFAULT_NEWS_THEME;
+    }
+
+    function syncThemeValueLabel() {
+      themeValueEl.textContent = getSelectedThemeColor();
     }
 
     function setBusy(busy: boolean) {
@@ -298,15 +334,7 @@ const wechatPublisherApp: PopupApp = {
       if (!ok) throw new Error('当前标签页不是公众号编辑页，或编辑器尚未加载完成');
     }
 
-    async function runInsert(options: {
-      includeTitle: boolean;
-      includeAuthor: boolean;
-      includeSummary: boolean;
-      includeBody: boolean;
-      includeImages: boolean;
-      includeSaveDraft: boolean;
-      replaceBody: boolean;
-    }, inputPayload?: WechatArticlePayload) {
+    async function runInsert(options: InsertOptions, inputPayload?: WechatArticlePayload) {
       let payload = inputPayload;
       if (!payload) {
         try {
@@ -338,7 +366,10 @@ const wechatPublisherApp: PopupApp = {
           blockCount: number;
           imageResults: Array<{ success: boolean }>;
           saveDraftResult: { success: boolean; error?: string } | null;
-        }>(tabId, writingStyle, 'insertPayload', payload, options);
+        }>(tabId, writingStyle, 'insertPayload', payload, {
+          ...options,
+          themeAccentColor: writingStyle === 'news' ? getSelectedThemeColor() : '',
+        });
 
         if (!result || typeof result !== 'object') {
           throw new Error('页面脚本未返回有效结果');
@@ -378,12 +409,26 @@ const wechatPublisherApp: PopupApp = {
     }
 
     textarea.value = localStorage.getItem(STORAGE_KEY) ?? '';
+    const savedTheme = String(localStorage.getItem(THEME_STORAGE_KEY) || '').trim().toUpperCase();
+    themeInput.value = /^#[0-9A-F]{6}$/.test(savedTheme) ? savedTheme : DEFAULT_NEWS_THEME;
+    syncThemeValueLabel();
     updateSummary();
     setStatus('请先打开公众号编辑页，再粘贴 JSON 执行插入。', 'info');
 
     textarea.addEventListener('input', () => {
       persistDraft();
       updateSummary();
+    });
+
+    themeInput.addEventListener('input', () => {
+      syncThemeValueLabel();
+      persistThemeChoice();
+    });
+
+    themeInput.addEventListener('change', () => {
+      syncThemeValueLabel();
+      persistThemeChoice();
+      setStatus(`主题色已切换为 ${getSelectedThemeColor()}`, 'info');
     });
 
     formatBtn.addEventListener('click', () => {

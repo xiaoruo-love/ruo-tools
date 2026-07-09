@@ -1,5 +1,5 @@
 (function () {
-  const BRIDGE_VERSION = '2026-07-08-mass-family-v1';
+  const BRIDGE_VERSION = '2026-07-09-mass-family-v6';
   if (window.__ruoruoWechatPublisherMassFamily__?.version === BRIDGE_VERSION) return;
   const WRITING_STYLE_PRESETS = {
     mass_family: {
