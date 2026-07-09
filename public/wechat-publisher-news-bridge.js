@@ -1,8 +1,9 @@
 (function () {
   const BRIDGE_VERSION = '2026-07-08-news-v1';
   if (window.__ruoruoWechatPublisherNews__?.version === BRIDGE_VERSION) return;
-  const RICH_TEXT_FONT =
-    'font-family: Optima-Regular, PingFangTC-light, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;';
+  const NEWS_FONT_FAMILY =
+    '"PingFang SC NEW", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei", Arial, sans-serif';
+  const RICH_TEXT_FONT = `font-family: ${NEWS_FONT_FAMILY};`;
   const WRITING_STYLE_PRESETS = {
     news: {
       paragraph: {
@@ -401,8 +402,7 @@
   function applyEditorTypography() {
     const editor = getContentEditor();
     if (!editor) throw new Error('未找到正文编辑器');
-    editor.style.fontFamily =
-      'Optima-Regular, PingFangTC-light, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif';
+    editor.style.fontFamily = NEWS_FONT_FAMILY;
   }
 
   function moveCursorToContentEnd() {
