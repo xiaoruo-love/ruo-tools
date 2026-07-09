@@ -171,7 +171,7 @@
     return `rgb(${mix(rgb.r)}, ${mix(rgb.g)}, ${mix(rgb.b)})`;
   }
 
-  function getThemeConfig(payload) {
+  function getThemeConfig() {
     const accentColor = '#c14851';
     return {
       accentColor,
@@ -189,9 +189,6 @@
     }
     if (!String(payload.summary || '').trim()) {
       throw new Error('新版协议要求必须提供 summary');
-    }
-    if (!payload.theme || normalizeHexColor(payload.theme.accent_color) !== '#c14851') {
-      throw new Error('mass_family 主题色必须固定为 #c14851');
     }
     if (!Array.isArray(payload.blocks)) {
       throw new Error('新版协议要求 blocks 必须是数组');

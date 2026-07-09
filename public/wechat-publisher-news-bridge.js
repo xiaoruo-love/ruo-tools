@@ -173,9 +173,8 @@
     return `rgb(${mix(rgb.r)}, ${mix(rgb.g)}, ${mix(rgb.b)})`;
   }
 
-  function getThemeConfig(payload) {
-    const defaultAccent = '#6c7b95';
-    const accentColor = normalizeHexColor(payload?.theme?.accent_color) || defaultAccent;
+  function getThemeConfig() {
+    const accentColor = '#f85028';
     return {
       accentColor,
       accentLight: mixHexWithWhite(accentColor, 0.48) || '#d7dde6',
@@ -192,9 +191,6 @@
     }
     if (!String(payload.summary || '').trim()) {
       throw new Error('新版协议要求必须提供 summary');
-    }
-    if (!payload.theme || !normalizeHexColor(payload.theme.accent_color)) {
-      throw new Error('新版协议要求必须提供 theme.accent_color');
     }
     if (!Array.isArray(payload.blocks)) {
       throw new Error('新版协议要求 blocks 必须是数组');

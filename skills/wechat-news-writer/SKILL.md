@@ -77,7 +77,6 @@ description: 根据用户提供的主题、核心信息和写作目标，产出�
 - `writing_style`
 - `title_candidates`
 - `summary`
-- `theme`
 - `blocks`
 
 推荐格式：
@@ -87,11 +86,6 @@ description: 根据用户提供的主题、核心信息和写作目标，产出�
   "writing_style": "news",
   "title_candidates": ["标题1", "标题2", "标题3"],
   "summary": "120个字符以内（含标点）的摘要",
-  "theme": {
-    "accent_color": "#6c7b95",
-    "accent_name": "克制金棕",
-    "reason": "这是一篇科技/规则解读稿，适合偏克制、稳定的强调色"
-  },
   "blocks": [
     { "type": "paragraph", "variant": "lead", "text": "第一段正文" },
     { "type": "heading", "variant": "section_title", "text": "小标题" }
@@ -105,9 +99,14 @@ description: 根据用户提供的主题、核心信息和写作目标，产出�
 - `writing_style` 必须是 `news` 或 `mass_family`
 - `title_candidates` 必须正好提供 `3` 个标题
 - `summary` 必须控制在 `120` 个字符以内，含标点
-- `theme.accent_color` 必须是十六进制颜色
-- 当 `writing_style = mass_family` 时，`theme.accent_color` 必须固定为 `#c14851`
 - 正文中默认至少包含 `1` 到 `2` 个 `image` block，除非用户明确要求纯文字稿
+
+主题色不再由 JSON 返回，而由插件按 `writing_style` 固定：
+
+- `news` 固定为 `#F85028`
+- `mass_family` 固定为 `#c14851`
+
+因此，生成结果中不要返回 `theme` 字段。
 
 ## 风格文件职责
 
@@ -117,7 +116,6 @@ description: 根据用户提供的主题、核心信息和写作目标，产出�
 - 可用 block 组合与使用频率
 - `paragraph / note / quote / numbered_list / pseudo_table / image` 的具体边界
 - 内联强调策略
-- 主题色偏好
 - 去 AI 味策略
 - 事实与风险控制强度
 

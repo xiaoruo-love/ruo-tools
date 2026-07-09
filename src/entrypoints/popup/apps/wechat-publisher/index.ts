@@ -9,11 +9,6 @@ interface WechatArticlePayload {
   author_name?: string;
   summary?: string;
   digest?: string;
-  theme?: {
-    accent_color?: string;
-    accent_name?: string;
-    reason?: string;
-  };
   cover_image?: {
     query?: string;
     image_url?: string;
@@ -107,9 +102,6 @@ function parsePayload(raw: string): WechatArticlePayload {
   parsed.writing_style = normalizeWritingStyle(parsed.writing_style);
   if (!Array.isArray(parsed.title_candidates) || parsed.title_candidates.length !== 3) {
     throw new Error('title_candidates 必须正好提供 3 个标题');
-  }
-  if (!parsed.theme || typeof parsed.theme !== 'object' || !String(parsed.theme.accent_color || '').trim()) {
-    throw new Error('缺少 theme.accent_color');
   }
   if (!Array.isArray(parsed.blocks)) {
     throw new Error('缺少 blocks 数组');
