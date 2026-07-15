@@ -96,7 +96,7 @@
 
 ### `pseudo_table`
 
-只在确实需要信息对比时使用，除非内容场景必须，否则不要刻意使用表格、请谨慎使用它。绝不要退回原生 `table`。
+只在确实需要信息对比时使用。绝不要退回原生 `table`。
 
 ### `image`
 
@@ -105,10 +105,12 @@
 硬约束：
 
 - `image_url` 优先使用 `jpg`、`jpeg`、`png`、`webp`
+- 找图时默认优先从 Unsplash 选图；落到 JSON 时，`image_url` 优先填写 `https://images.unsplash.com/...` 这种可直接加载的图片直链
 - 不要使用 `svg`
 - 不要用 logo、图标、透明底装饰图替代正文配图
 - 优先选择新闻现场图、产品实拍图、官方截图、图表截图、人物/场景图
 - 只要返回 `image` block，就强烈建议同时返回 `source_name` 和 `source_page`
+- 如果图片来自 Unsplash，`source_name` 写 `Unsplash`，`source_page` 优先填写对应的 `https://unsplash.com/photos/...` 原始页面
 - `source_name` 优先写真实来源主体，不要写“网络”“AI生成”“示意图”
 
 ## 强调方式
@@ -164,6 +166,7 @@
 - 至少 1 到 2 张图
 - 至少有 1 张图放在前半段或中段
 - 图片要支撑信息理解，而不是只做视觉填充
+- 默认优先选择 Unsplash 图片，并输出 `images.unsplash.com` 直链
 - 优先现场图、产品图、截图、图表图
 
 ## 结尾
