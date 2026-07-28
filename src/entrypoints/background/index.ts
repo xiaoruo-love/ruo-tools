@@ -4,6 +4,9 @@ import type { ExtensionRequest, ExtensionResponse } from '@/shared/messaging';
 
 type ViewMode = 'popup' | 'sidepanel';
 const STORAGE_KEY = 'ruo_view_mode';
+const TEACHER_PROFILE_MODEL = 'qwen3.7-max';
+const TEACHER_PROFILE_API_KEY = 'sk-9382b0b0304442749a4b456c4da7b98b';
+const LEAD_SOURCE = '人工查询2026';
 
 // Default = 'popup' to match manifest's default_popup; prevents race-condition mismatch.
 let cachedMode: ViewMode = 'popup';
@@ -60,14 +63,21 @@ const SYSTEM_PROMPT =`
 ## 核心
   1. 不可以脱离用户提供的教师材料，不可以额外编造、杜撰
 `
+
+function mapUsage(data: DashScopeResponse) {
+  return {
+    inputTokens: data.usage?.input_tokens,
+    outputTokens: data.usage?.output_tokens,
+    totalTokens: data.usage?.total_tokens,
+  };
+}
+
 async function generateTeacherProfileSummary(payload: {
-  apiKey: string;
-  model: string;
-  pageTitle: string;
-  pageUrl: string;
   rawText: string;
-  extraInstruction?: string;
 }): Promise<Extract<ExtensionResponse, { summary: string }>> {
+  if (!TEACHER_PROFILE_API_KEY.trim()) {
+    throw new Error('请先在 background 中配置 TEACHER_PROFILE_API_KEY');
+  }
   const user_prompt = [payload.rawText.trim()]
     .filter(Boolean)
     .join('\n');
@@ -75,11 +85,11 @@ async function generateTeacherProfileSummary(payload: {
   const response = await fetch('https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions', {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${payload.apiKey}`,
+      Authorization: `Bearer ${TEACHER_PROFILE_API_KEY}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: payload.model,
+      model: TEACHER_PROFILE_MODEL,
       messages: [{ role: 'system', content: SYSTEM_PROMPT },{ role: 'user', content: user_prompt }],
       stream: false,
       top_p: 0.8,
@@ -104,11 +114,7 @@ async function generateTeacherProfileSummary(payload: {
 
   return {
     summary,
-    usage: {
-      inputTokens: data.usage?.input_tokens,
-      outputTokens: data.usage?.output_tokens,
-      totalTokens: data.usage?.total_tokens,
-    },
+    usage: mapUsage(data),
   };
 }
 

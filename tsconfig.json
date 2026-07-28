@@ -22,7 +22,7 @@
     ".wxt/wxt.d.ts"
   ],
   "exclude": [
-    ".output",
+    "output",
     "node_modules"
   ]
 }

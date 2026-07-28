@@ -8,12 +8,7 @@ export type ExtensionRequest =
   | {
       type: 'teacher-profile:generate-summary';
       payload: {
-        apiKey: string;
-        model: string;
-        pageTitle: string;
-        pageUrl: string;
         rawText: string;
-        extraInstruction?: string;
       };
     };
 

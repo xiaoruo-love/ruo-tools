@@ -40,27 +40,6 @@ export const featureRegistry: FeatureDefinition[] = [
     type: 'popup-only',
     matches: [],
     enabledByDefault: true,
-    settingsSchema: [
-      {
-        key: 'apiKey',
-        label: 'DashScope API Key',
-        type: 'string',
-        defaultValue: '',
-      },
-      {
-        key: 'model',
-        label: '模型',
-        type: 'string',
-        defaultValue: 'qwen3.7-max',
-      },
-      {
-        key: 'extraInstruction',
-        label: '附加要求',
-        description: '可选，例如“突出研究方向和教学任务，不要写教材信息”。',
-        type: 'string',
-        defaultValue: '',
-      },
-    ],
   },
 ];
 
