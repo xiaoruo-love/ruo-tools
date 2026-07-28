@@ -24,6 +24,94 @@ function applyMode(mode: ViewMode): void {
   }
 }
 
+interface DashScopeUsage {
+  input_tokens?: number;
+  output_tokens?: number;
+  total_tokens?: number;
+}
+
+interface DashScopeResponse {
+  choices?: Array<{
+    message?: {
+      content?: string | Array<{ type?: string; text?: string }>;
+    };
+  }>;
+  usage?: DashScopeUsage;
+}
+
+function extractAssistantText(content: DashScopeResponse['choices'][number]['message']['content']): string {
+  if (typeof content === 'string') return content.trim();
+  if (Array.isArray(content)) {
+    return content
+      .map((item) => (typeof item?.text === 'string' ? item.text : ''))
+      .join('\n')
+      .trim();
+  }
+  return '';
+}
+const SYSTEM_PROMPT =`
+你是一名高校教师简介编辑助手。请仅基于用户提供的教师页面材料，生成一段科学、精确、专业、克制的中文教师研究方向、履历的简介。
+
+## 要求：
+  1. 只能使用材料中明确出现的信息，不要补充、猜测、杜撰任何履历、职称、奖项、论文、项目或社会兼职。
+  2. 语气客观、正式，不要使用夸张宣传语，不要使用“致力于”“深耕”“享有盛誉”等空泛词。
+  3. 优先整合以下信息：姓名、学位/职称、任职单位、研究方向、教学工作、代表性履历或参与事项。
+  4. 如果材料信息有限，就如实简洁概括，不要为了凑长度而扩写。
+## 核心
+  1. 不可以脱离用户提供的教师材料，不可以额外编造、杜撰
+`
+async function generateTeacherProfileSummary(payload: {
+  apiKey: string;
+  model: string;
+  pageTitle: string;
+  pageUrl: string;
+  rawText: string;
+  extraInstruction?: string;
+}): Promise<Extract<ExtensionResponse, { summary: string }>> {
+  const user_prompt = [payload.rawText.trim()]
+    .filter(Boolean)
+    .join('\n');
+
+  const response = await fetch('https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${payload.apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: payload.model,
+      messages: [{ role: 'system', content: SYSTEM_PROMPT },{ role: 'user', content: user_prompt }],
+      stream: false,
+      top_p: 0.8,
+      temperature: 0.4,
+      enable_search: false,
+      enable_thinking: false,
+      thinking_budget: 4000,
+      result_format: 'message',
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`DashScope 请求失败（${response.status}）：${errorText.slice(0, 240)}`);
+  }
+
+  const data = (await response.json()) as DashScopeResponse;
+  const summary = extractAssistantText(data.choices?.[0]?.message?.content);
+  if (!summary) {
+    throw new Error('模型未返回有效摘要内容');
+  }
+
+  return {
+    summary,
+    usage: {
+      inputTokens: data.usage?.input_tokens,
+      outputTokens: data.usage?.output_tokens,
+      totalTokens: data.usage?.total_tokens,
+    },
+  };
+}
+
 export default defineBackground(() => {
   // action.onClicked only fires when popup is cleared (= sidepanel mode).
   // Re-apply setPopup('') as a safety net in case Chrome reset it after SW restart.
@@ -49,7 +137,7 @@ export default defineBackground(() => {
   });
 
   browser.runtime.onMessage.addListener(
-    async (message: ExtensionRequest): Promise<ExtensionResponse> => {
+    async (message: ExtensionRequest | { type?: string; [key: string]: unknown }): Promise<ExtensionResponse> => {
       if (message.type === 'features:list') {
         return { features: await toFeatureRuntimeStates(featureRegistry) };
       }
@@ -70,7 +158,11 @@ export default defineBackground(() => {
           null) as ExtensionResponse;
       }
 
-      throw new Error(`Unsupported message type.`);
+      if (message.type === 'teacher-profile:generate-summary') {
+        return await generateTeacherProfileSummary(message.payload);
+      }
+
+      throw new Error(`Unsupported message type: ${String(message?.type ?? '(unknown)')}`);
     },
   );
 });
